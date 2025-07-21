@@ -23,7 +23,10 @@ class NewDoctorLoginWindow(QDialog):
     def init_ui(self):
         """Tam ekran interfeys yaratma"""
         self.setWindowTitle("BioScript - Həkim Girişi")
-        self.showMaximized()  # Tam ekran
+        
+        # Həqiqi tam ekran - pəncərə çərçivəsiz
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        self.showFullScreen()  # Tam ekran
         self.setModal(True)
         
         # Ana layout - tam ekran üçün
@@ -139,16 +142,48 @@ class NewDoctorLoginWindow(QDialog):
         # Boşluq
         form_layout.addSpacing(20)
         
+        # Düymələr container
+        buttons_layout = QHBoxLayout()
+        buttons_layout.setSpacing(15)
+        
+        # Çıxış düyməsi (Esc)
+        exit_btn = QPushButton("ÇIXIŞ (ESC)")
+        exit_btn.setFont(QFont("Arial", 12))
+        exit_btn.setFixedHeight(45)
+        exit_btn.setStyleSheet("""
+            QPushButton {
+                background: #f44336;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 10px 20px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: #d32f2f;
+            }
+        """)
+        exit_btn.clicked.connect(self.close)
+        buttons_layout.addWidget(exit_btn)
+        
+        buttons_layout.addStretch()  # Boşluq
+        
         # Giriş düyməsi
         self.login_button = QPushButton("GİRİŞ")
         self.login_button.setFont(QFont("Arial", 16, QFont.Bold))
         self.login_button.setFixedHeight(55)
         self.login_button.clicked.connect(self.handle_login)
-        form_layout.addWidget(self.login_button)
+        buttons_layout.addWidget(self.login_button)
         
-        # Enter basıldıqda giriş
+        form_layout.addLayout(buttons_layout)
+        
+        # Keyboard shortcut-lar
         self.username_input.returnPressed.connect(self.handle_login)
         self.password_input.returnPressed.connect(self.handle_login)
+        
+        # ESC açarı ilə çıxış
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.installEventFilter(self)
         
         layout.addWidget(form_frame)
         
@@ -207,6 +242,13 @@ class NewDoctorLoginWindow(QDialog):
                                           stop:0 #1565c0, stop:1 #0d47a1);
             }
         """)
+        
+    def eventFilter(self, obj, event):
+        """Event filter - ESC açarı ilə çıxış"""
+        if event.type() == event.KeyPress and event.key() == Qt.Key_Escape:
+            self.close()
+            return True
+        return super().eventFilter(obj, event)
         
     def handle_login(self):
         """Giriş idarəetməsi"""
