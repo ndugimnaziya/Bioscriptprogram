@@ -14,10 +14,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "BioScript GUI"
+args = "BioScript MySQL"
 
 [[workflows.workflow]]
-name = "BioScript GUI"
+name = "BioScript MySQL"
 author = "agent"
 
 [[workflows.workflow.tasks]]
