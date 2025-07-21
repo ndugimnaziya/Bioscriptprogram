@@ -287,7 +287,14 @@ class PatientHistoryAIWidget(QWidget):
             self.history_list.clear()
             
             for prescription in prescriptions:
-                presc_id, sikayət, diaqnoz, dərmanlar, yaradilma, hekim_ad, hekim_soyad = prescription
+                # Dictionary formatında məlumatları al
+                presc_id = prescription['id']
+                sikayət = prescription['şikayət'] or ''
+                diaqnoz = prescription['diaqnoz'] or ''
+                dərmanlar = prescription['dərmanlar'] or ''
+                yaradilma = prescription['yaradılma_tarixi']
+                hekim_ad = prescription['hekim_adi'] or ''
+                hekim_soyad = prescription['hekim_soyadi'] or ''
                 
                 # Dərmanları parse et
                 try:
@@ -298,20 +305,39 @@ class PatientHistoryAIWidget(QWidget):
                 except:
                     meds = []
                 
+                # Tarixi düzgün format et
+                yaradilma_obj = yaradilma
+                if isinstance(yaradilma, str):
+                    # String formatındadırsa parse et
+                    try:
+                        from datetime import datetime
+                        yaradilma_obj = datetime.strptime(yaradilma, '%Y-%m-%d %H:%M:%S')
+                        tarix_str = yaradilma_obj.strftime('%d.%m.%Y')
+                    except:
+                        try:
+                            yaradilma_obj = datetime.strptime(yaradilma[:19], '%Y-%m-%d %H:%M:%S')
+                            tarix_str = yaradilma_obj.strftime('%d.%m.%Y')
+                        except:
+                            tarix_str = yaradilma[:10] if len(yaradilma) >= 10 else yaradilma
+                            yaradilma_obj = yaradilma
+                else:
+                    # Datetime obyektidirsə
+                    tarix_str = yaradilma.strftime('%d.%m.%Y')
+                
                 # Tarixçə məlumatlarını saxla
                 history_item = {
                     'id': presc_id,
                     'şikayət': sikayət,
                     'diaqnoz': diaqnoz,
                     'dərmanlar': meds,
-                    'tarix': yaradilma,
+                    'tarix': yaradilma_obj,
                     'həkim': f"{hekim_ad} {hekim_soyad}"
                 }
                 self.patient_history.append(history_item)
                 
                 # List widget-ə əlavə et
                 item_text = f"""
-                📅 {yaradilma.strftime('%d.%m.%Y')} - Dr. {hekim_ad} {hekim_soyad}
+                📅 {tarix_str} - Dr. {hekim_ad} {hekim_soyad}
                 🩺 Şikayət: {sikayət[:50]}{'...' if len(sikayət) > 50 else ''}
                 🔬 Diaqnoz: {diaqnoz[:50]}{'...' if len(diaqnoz) > 50 else ''}
                 💊 Dərman sayı: {len(meds)}
@@ -349,7 +375,16 @@ class PatientHistoryAIWidget(QWidget):
         history_text += "KEÇMİŞ RESEPTLƏRİ:\n"
         
         for i, item in enumerate(self.patient_history, 1):
-            history_text += f"\n{i}. Resept ({item['tarix'].strftime('%d.%m.%Y')}):\n"
+            # Tarixi düzgün format et
+            try:
+                if isinstance(item['tarix'], str):
+                    tarix_str = item['tarix'][:10]
+                else:
+                    tarix_str = item['tarix'].strftime('%d.%m.%Y')
+            except:
+                tarix_str = "Bilinmir"
+            
+            history_text += f"\n{i}. Resept ({tarix_str}):\n"
             history_text += f"   Şikayət: {item['şikayət']}\n"
             history_text += f"   Diaqnoz: {item['diaqnoz']}\n"
             history_text += f"   Dərmanlar:\n"
