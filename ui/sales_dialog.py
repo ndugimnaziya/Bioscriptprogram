@@ -41,7 +41,7 @@ class SalesDialog(QDialog):
         # Başlıq
         title_label = QLabel("💊 Aktiv Reseptlər - Satış üçün seçin")
         title_label.setFont(QFont("Segoe UI", 18, QFont.Bold))
-        title_label.setStyleSheet("color: #1976D2; padding: 10px;")
+        title_label.setStyleSheet("color: #00BCD4; padding: 10px;")
         title_label.setAlignment(Qt.AlignCenter)
         
         # Resept siyahısı

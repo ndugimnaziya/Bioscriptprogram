@@ -12,13 +12,13 @@ def main():
     if os.environ.get('QT_QPA_PLATFORM') == 'offscreen':
         os.environ['QT_QPA_PLATFORM'] = 'offscreen'
     
+    # Yüksek DPI dəstəyi - QApplication-dan əvvəl təyin edilməlidir
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    
     app = QApplication(sys.argv)
     app.setApplicationName("BioScript Aptek Sistemi")
     app.setApplicationVersion("1.0")
-    
-    # Yüksek DPI dəstəyi
-    app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     
     # Ana giriş pəncərəsi
     login_window = PharmacyLoginWindow()

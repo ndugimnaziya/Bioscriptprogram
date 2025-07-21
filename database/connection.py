@@ -35,8 +35,11 @@ class DatabaseConnection:
     
     def disconnect(self):
         """Bağlantını kəs"""
-        if self.connection:
-            self.connection.close()
+        if self.connection and not self.connection._closed:
+            try:
+                self.connection.close()
+            except Exception:
+                pass  # Artıq bağlıdırsa xəta yaranmaz
     
     def execute_query(self, query, params=None):
         """SQL sorğusunu icra et"""

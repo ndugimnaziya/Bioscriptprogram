@@ -136,8 +136,8 @@ class FingerprintScanDialog(QDialog):
         palette = self.palette()
         gradient = QLinearGradient(0, 0, 0, 1)
         gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
-        gradient.setColorAt(0, QColor(25, 118, 210))
-        gradient.setColorAt(1, QColor(13, 71, 161))
+        gradient.setColorAt(0, QColor(0, 188, 212))   # BioScript mavi
+        gradient.setColorAt(1, QColor(0, 96, 139))    # Tünd BioScript mavi
         palette.setBrush(QPalette.Window, QBrush(gradient))
         self.setPalette(palette)
         

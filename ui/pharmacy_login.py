@@ -36,12 +36,25 @@ class PharmacyLoginWindow(QMainWindow):
         main_layout.setAlignment(Qt.AlignCenter)
         main_layout.setSpacing(30)
         
-        # Logo (BioScript)
-        logo_label = QLabel("🏥 BioScript")
+        # BioScript Orijinal Logo
+        logo_label = QLabel()
         logo_label.setAlignment(Qt.AlignCenter)
-        logo_label.setFont(QFont("Segoe UI", 48, QFont.Bold))
+        try:
+            from PyQt5.QtGui import QPixmap
+            pixmap = QPixmap("assets/bioscript_logo.png")
+            if not pixmap.isNull():
+                scaled_pixmap = pixmap.scaled(400, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                logo_label.setPixmap(scaled_pixmap)
+            else:
+                logo_label.setText("BioScript")
+                logo_label.setFont(QFont("Segoe UI", 48, QFont.Bold))
+                logo_label.setStyleSheet("color: #00BCD4; background: transparent;")
+        except:
+            logo_label.setText("BioScript")
+            logo_label.setFont(QFont("Segoe UI", 48, QFont.Bold))
+            logo_label.setStyleSheet("color: #00BCD4; background: transparent;")
+        
         logo_label.setStyleSheet("""
-            color: white;
             background: transparent;
             margin: 20px;
         """)
@@ -52,7 +65,7 @@ class PharmacyLoginWindow(QMainWindow):
         subtitle_label.setAlignment(Qt.AlignCenter) 
         subtitle_label.setFont(QFont("Segoe UI", 18))
         subtitle_label.setStyleSheet("""
-            color: #E3F2FD;
+            color: #B3E5FC;
             background: transparent;
             margin-bottom: 30px;
         """)
@@ -69,8 +82,8 @@ class PharmacyLoginWindow(QMainWindow):
         palette = self.palette()
         gradient = QLinearGradient(0, 0, 0, 1)
         gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
-        gradient.setColorAt(0, QColor(25, 118, 210))  # Mavi
-        gradient.setColorAt(1, QColor(13, 71, 161))   # Tünd mavi
+        gradient.setColorAt(0, QColor(0, 188, 212))   # BioScript mavi 
+        gradient.setColorAt(1, QColor(0, 96, 139))    # Tünd BioScript mavi
         palette.setBrush(QPalette.Window, QBrush(gradient))
         self.setPalette(palette)
         
@@ -94,7 +107,7 @@ class PharmacyLoginWindow(QMainWindow):
         # İstifadəçi adı
         username_label = QLabel("İstifadəçi Adı:")
         username_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        username_label.setStyleSheet("color: #1976D2; background: transparent;")
+        username_label.setStyleSheet("color: #00BCD4; background: transparent;")
         
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("Aptek istifadəçi adını daxil edin")
@@ -108,14 +121,14 @@ class PharmacyLoginWindow(QMainWindow):
                 font-size: 11pt;
             }
             QLineEdit:focus {
-                border-color: #1976D2;
+                border-color: #00BCD4;
             }
         """)
         
         # Şifrə
         password_label = QLabel("Şifrə:")
         password_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        password_label.setStyleSheet("color: #1976D2; background: transparent;")
+        password_label.setStyleSheet("color: #00BCD4; background: transparent;")
         
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Şifrəni daxil edin")
@@ -130,7 +143,7 @@ class PharmacyLoginWindow(QMainWindow):
                 font-size: 11pt;
             }
             QLineEdit:focus {
-                border-color: #1976D2;
+                border-color: #00BCD4;
             }
         """)
         
@@ -141,7 +154,7 @@ class PharmacyLoginWindow(QMainWindow):
         login_button.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #2196F3, stop:1 #1976D2);
+                    stop:0 #00BCD4, stop:1 #00ACC1);
                 color: white;
                 border: none;
                 border-radius: 8px;
@@ -150,11 +163,11 @@ class PharmacyLoginWindow(QMainWindow):
             }
             QPushButton:hover {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #42A5F5, stop:1 #2196F3);
+                    stop:0 #26C6DA, stop:1 #00BCD4);
             }
             QPushButton:pressed {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #1976D2, stop:1 #1565C0);
+                    stop:0 #00ACC1, stop:1 #0097A7);
             }
         """)
         login_button.clicked.connect(self.login)

@@ -53,8 +53,8 @@ class PharmacyDashboard(QMainWindow):
         palette = self.palette()
         gradient = QLinearGradient(0, 0, 0, 1)
         gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
-        gradient.setColorAt(0, QColor(25, 118, 210))
-        gradient.setColorAt(1, QColor(13, 71, 161))
+        gradient.setColorAt(0, QColor(0, 188, 212))   # BioScript mavi
+        gradient.setColorAt(1, QColor(0, 96, 139))    # Tünd BioScript mavi
         palette.setBrush(QPalette.Window, QBrush(gradient))
         self.setPalette(palette)
         
@@ -78,7 +78,7 @@ class PharmacyDashboard(QMainWindow):
         
         title_label = QLabel(f"🏥 {self.user_data['pharmacy_name']}")
         title_label.setFont(QFont("Segoe UI", 18, QFont.Bold))
-        title_label.setStyleSheet("color: #1976D2; background: transparent;")
+        title_label.setStyleSheet("color: #00BCD4; background: transparent;")
         
         user_label = QLabel(f"İstifadəçi: {self.user_data['name']} ({self.user_data['role']})")
         user_label.setFont(QFont("Segoe UI", 12))
