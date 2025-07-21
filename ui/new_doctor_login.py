@@ -35,8 +35,8 @@ class NewDoctorLoginWindow(QDialog):
         center_widget = QWidget()
         center_layout = QVBoxLayout(center_widget)
         center_layout.setAlignment(Qt.AlignCenter)
-        center_layout.setContentsMargins(50, 50, 50, 50)
-        center_layout.setSpacing(30)
+        center_layout.setContentsMargins(80, 60, 80, 60)
+        center_layout.setSpacing(40)
         
         # Logo
         self.create_logo_section(center_layout)
@@ -54,7 +54,7 @@ class NewDoctorLoginWindow(QDialog):
         """Logo bölməsi yaratma"""
         logo_frame = QFrame()
         logo_layout = QVBoxLayout(logo_frame)
-        logo_layout.setSpacing(15)
+        logo_layout.setSpacing(25)
         logo_layout.setAlignment(Qt.AlignCenter)
         
         # Original BioScript logosu
@@ -62,8 +62,8 @@ class NewDoctorLoginWindow(QDialog):
             logo_label = QLabel()
             pixmap = QPixmap("static/bioscript_logo_original.png")
             if not pixmap.isNull():
-                # Tam ekran üçün logoyu böyüt (600x240 maksimum)
-                scaled_pixmap = pixmap.scaled(600, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                # Logo ölçüsünü kiçilt (450x180 maksimum)
+                scaled_pixmap = pixmap.scaled(450, 180, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 logo_label.setPixmap(scaled_pixmap)
                 logo_label.setAlignment(Qt.AlignCenter)
                 logo_label.setStyleSheet("background: transparent; margin-bottom: 20px;")
@@ -79,11 +79,11 @@ class NewDoctorLoginWindow(QDialog):
             logo_text.setStyleSheet("color: #1e88e5; background: transparent;")
             logo_layout.addWidget(logo_text)
         
-        # Sloqan - tam ekran üçün böyük
+        # Sloqan - orta ölçü
         slogan = QLabel("Səhiyyə Barmaqlarınızın Ucundadır!")
-        slogan.setFont(QFont("Arial", 20))
+        slogan.setFont(QFont("Arial", 18))
         slogan.setAlignment(Qt.AlignCenter)
-        slogan.setStyleSheet("color: #555; font-style: italic; margin-top: 15px; margin-bottom: 30px;")
+        slogan.setStyleSheet("color: #555; font-style: italic; margin-top: 20px; margin-bottom: 40px;")
         logo_layout.addWidget(slogan)
         
         layout.addWidget(logo_frame)
@@ -92,17 +92,17 @@ class NewDoctorLoginWindow(QDialog):
         """Giriş formu yaratma"""
         form_frame = QFrame()
         form_frame.setObjectName("loginForm")
-        form_frame.setFixedWidth(500)  # Sabit genişlik
-        form_frame.setMaximumHeight(450)  # Maksimum yüksəklik
+        form_frame.setFixedWidth(550)  # Sabit genişlik artırıldı
+        form_frame.setMaximumHeight(500)  # Maksimum yüksəklik artırıldı
         form_layout = QVBoxLayout(form_frame)
-        form_layout.setSpacing(25)
-        form_layout.setContentsMargins(40, 40, 40, 40)
+        form_layout.setSpacing(30)
+        form_layout.setContentsMargins(50, 45, 50, 45)
         
-        # Başlıq - daha böyük və görünən
+        # Başlıq - orta ölçü
         title = QLabel("Həkim Girişi")
-        title.setFont(QFont("Arial", 24, QFont.Bold))
+        title.setFont(QFont("Arial", 22, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("color: #333; margin-bottom: 20px; background: transparent;")
+        title.setStyleSheet("color: #333; margin-bottom: 25px; background: transparent;")
         form_layout.addWidget(title)
         
         # Boşluq

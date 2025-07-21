@@ -45,8 +45,9 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - **Test Həkim**: huseyn/huseyn
 
 ## Son Dəyişikliklər
-- 2025-01-21: **SON YENİLİK** - Giriş səhifəsi tam ekran edildi və uyğunlaşdırıldı
-- 2025-01-21: **YENİ** - Logo ölçüsü 600x240px tam ekran üçün böyüdüldü
+- 2025-01-21: **SON YENİLİK** - Logo ölçüsü 450x180px olaraq düzəldildi və yazı problemləri həll edildi
+- 2025-01-21: **YENİ** - Tam ekran giriş səhifəsi optimallaşdırıldı və spacing artırıldı
+- 2025-01-21: **YENİ** - Giriş formu genişliyi 550px və yüksəkliyi 500px olaraq artırıldı
 - 2025-01-21: **YENİ** - Mərkəzləşdirilmiş layout və gradient arxa fon
 - 2025-01-21: **YENİ** - Original BioScript PNG logosu əlavə edildi
 - 2025-01-21: **YENİ** - Sadə və təmiz giriş səhifəsi yaradıldı  
