@@ -84,17 +84,55 @@ class FingerprintScanDialog(QDialog):
         # Düymələr
         button_layout = QHBoxLayout()
         
-        self.scan_btn = QPushButton("Oxumağa Başla")
-        self.scan_btn.setFont(QFont("Arial", 12, QFont.Bold))
+        self.scan_btn = QPushButton("🔍 Oxumağa Başla")
+        self.scan_btn.setFont(QFont("Segoe UI", 13, QFont.Bold))
+        self.scan_btn.setFixedSize(180, 45)
         self.scan_btn.clicked.connect(self.start_scanning)
         self.scan_btn.setEnabled(False)
+        self.scan_btn.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #1e88e5, stop:1 #1565c0);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                padding: 12px 25px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #42a5f5, stop:1 #1e88e5);
+            }
+            QPushButton:disabled {
+                background: #ccc;
+                color: #999;
+            }
+        """)
         
-        cancel_btn = QPushButton("Ləğv et")
-        cancel_btn.setFont(QFont("Arial", 12))
+        cancel_btn = QPushButton("❌ Ləğv et")
+        cancel_btn.setFont(QFont("Segoe UI", 13, QFont.Bold))
+        cancel_btn.setFixedSize(180, 45)
         cancel_btn.clicked.connect(self.reject)
+        cancel_btn.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #f44336, stop:1 #d32f2f);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                padding: 12px 25px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #ef5350, stop:1 #f44336);
+            }
+        """)
         
+        button_layout.addStretch()
         button_layout.addWidget(self.scan_btn)
         button_layout.addWidget(cancel_btn)
+        button_layout.addStretch()
         
         # Layout-a əlavə etmə
         layout.addWidget(title)
@@ -112,13 +150,15 @@ class FingerprintScanDialog(QDialog):
         self.progress.setValue(25)
         
         if self.fingerprint_reader.connect():
-            self.status_label.setText("✅ Arduino hazır. Barmağınızı sensora qoyun.")
+            self.status_label.setText("✅ Arduino hazır. Barmağınızı sensora qoyun və oxuma düyməsinə basın.")
             self.progress.setValue(100)
             self.scan_btn.setEnabled(True)
-            self.scan_btn.setText("Barmaq İzi Oxu")
+            self.scan_btn.setText("🔍 Barmaq İzi Oxu")
         else:
-            self.status_label.setText("❌ Arduino bağlantısı uğursuz")
-            self.progress.setValue(0)
+            self.status_label.setText("❌ Arduino bağlantısı uğursuz oldu. Simulator istifadə ediləcək.")
+            self.progress.setValue(50)
+            self.scan_btn.setEnabled(True)
+            self.scan_btn.setText("🔍 Simulator Oxu")
             
     def start_scanning(self):
         """Oxuma prosesini başlatma"""

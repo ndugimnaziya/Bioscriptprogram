@@ -108,6 +108,51 @@ class DatabaseManager:
             print(f"Həkim autentifikasiya xətası: {e}")
             return None
     
+    def find_patient_by_fingerprint(self, finger_id):
+        """Barmaq izi ilə pasiyent tapma"""
+        try:
+            query = """
+            SELECT * FROM patients 
+            WHERE fingerprint_id = %s AND is_active = 1
+            """
+            self.cursor.execute(query, (str(finger_id),))
+            patient = self.cursor.fetchone()
+            return patient
+            
+        except Error as e:
+            print(f"Barmaq izi ilə pasiyent tapma xətası: {e}")
+            return None
+    
+    def create_patient(self, patient_data):
+        """Yeni pasiyent yaratma"""
+        try:
+            query = """
+            INSERT INTO patients 
+            (id, name, surname, birth_date, gender, phone, address, fingerprint_id, registered_at, is_active)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 1)
+            """
+            
+            self.cursor.execute(query, (
+                patient_data['id'],
+                patient_data['name'],
+                patient_data['surname'], 
+                patient_data['birth_date'],
+                patient_data['gender'],
+                patient_data['phone'],
+                patient_data['address'],
+                patient_data['fingerprint_id'],
+                patient_data['registered_at']
+            ))
+            
+            self.connection.commit()
+            print(f"Yeni pasiyent yaradıldı: {patient_data['id']}")
+            return True
+            
+        except Error as e:
+            print(f"Pasiyent yaratma xətası: {e}")
+            self.connection.rollback()
+            return False
+    
     def search_patients(self, search_term):
         """Pasiyent axtarışı"""
         try:

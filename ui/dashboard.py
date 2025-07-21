@@ -313,6 +313,11 @@ class AIAssistantWidget(QWidget):
         </div>
         """)
         
+        # Scroll bar-ın həmişə aşağıda olmasını təmin et
+        self.chat_history.verticalScrollBar().setValue(
+            self.chat_history.verticalScrollBar().maximum()
+        )
+        
     def set_patient_context(self, patient_data, prescriptions):
         """Pasiyent kontekstini təyin etmə"""
         self.current_patient = patient_data
@@ -446,6 +451,36 @@ class AIAssistantWidget(QWidget):
         text = re.sub(r'(diaqnoz|xəstəlik|sindrom|infeksiya)', r'<span style="color: #2196f3; font-weight: bold;">\1</span>', text, flags=re.IGNORECASE)
         
         return text
+    
+    def start_fingerprint_workflow(self):
+        """Yeni barmaq izi workflow başlatma"""
+        try:
+            from ui.new_prescription_workflow import FingerprintFirstDialog
+            from PyQt5.QtWidgets import QMessageBox
+            
+            # Əsas widget-in db_manager-ni al
+            main_window = self.parent()
+            while main_window and not hasattr(main_window, 'db_manager'):
+                main_window = main_window.parent()
+            
+            if main_window and hasattr(main_window, 'db_manager'):
+                dialog = FingerprintFirstDialog(main_window.db_manager)
+                dialog.fingerprint_success.connect(self.on_fingerprint_success)
+                dialog.exec_()
+            else:
+                QMessageBox.warning(self, "Xəta", "Verilənlər bazası bağlantısı tapılmadı")
+            
+        except Exception as e:
+            print(f"Workflow başlatma xətası: {e}")
+    
+    def on_fingerprint_success(self, patient_data):
+        """Barmaq izi uğurlu oxunduqda"""
+        from PyQt5.QtWidgets import QMessageBox
+        self.set_patient_context(patient_data, [])
+        # Dashboard-da pasiyent məlumatlarını göstər
+        QMessageBox.information(self, "Pasiyent Tapıldı", 
+                               f"Pasiyent: {patient_data['name']} {patient_data['surname']}\n"
+                               f"Telefon: {patient_data.get('phone', 'N/A')}")
 
 class BioScriptDashboard(QWidget):
     """Əsas dashboard"""
@@ -530,7 +565,23 @@ class BioScriptDashboard(QWidget):
         welcome_label.setStyleSheet("color: white; padding: 5px;")
         
         # Tarix
-        date_label = QLabel(datetime.now().strftime("%d.%m.%Y - %A"))
+        # Azərbaycan dilində günlər
+        azerbaijani_days = {
+            'Monday': 'Bazar ertəsi',
+            'Tuesday': 'Çərşənbə axşamı', 
+            'Wednesday': 'Çərşənbə',
+            'Thursday': 'Cümə axşamı',
+            'Friday': 'Cümə',
+            'Saturday': 'Şənbə',
+            'Sunday': 'Bazar'
+        }
+        
+        current_date = datetime.now()
+        date_str = current_date.strftime("%d.%m.%Y")
+        day_name_en = current_date.strftime("%A")
+        day_name_az = azerbaijani_days.get(day_name_en, day_name_en)
+        
+        date_label = QLabel(f"{date_str} - {day_name_az}")
         date_label.setFont(QFont("Segoe UI", 13))
         date_label.setStyleSheet("color: rgba(255,255,255,0.9); padding: 5px;")
         date_label.setAlignment(Qt.AlignRight)
@@ -565,10 +616,10 @@ class BioScriptDashboard(QWidget):
         buttons_layout = QHBoxLayout(buttons_frame)
         buttons_layout.setSpacing(30)
         
-        # Yeni resept düyməsi
+        # Yeni resept düyməsi - Resept tarixçəsi düyməsini sildik, yalnız barmaq izi workflow
         new_prescription_btn = QPushButton("🔬 Yeni Resept Yaz")
-        new_prescription_btn.setFixedSize(240, 90)
-        new_prescription_btn.setFont(QFont("Segoe UI", 15, QFont.Bold))
+        new_prescription_btn.setFixedSize(300, 90)
+        new_prescription_btn.setFont(QFont("Segoe UI", 16, QFont.Bold))
         new_prescription_btn.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
@@ -576,7 +627,7 @@ class BioScriptDashboard(QWidget):
                 color: white;
                 border: none;
                 border-radius: 15px;
-                padding: 15px;
+                padding: 20px;
                 box-shadow: 0 4px 8px rgba(76,175,80,0.3);
             }
             QPushButton:hover {
@@ -588,36 +639,10 @@ class BioScriptDashboard(QWidget):
                 transform: translateY(0px);
             }
         """)
-        new_prescription_btn.clicked.connect(self.new_prescription_requested.emit)
-        
-        # Resept tarixçəsi düyməsi
-        view_prescriptions_btn = QPushButton("📋 Resept Tarixçəsi")
-        view_prescriptions_btn.setFixedSize(240, 90)
-        view_prescriptions_btn.setFont(QFont("Segoe UI", 15, QFont.Bold))
-        view_prescriptions_btn.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                          stop:0 #2196f3, stop:1 #1976d2);
-                color: white;
-                border: none;
-                border-radius: 15px;
-                padding: 15px;
-                box-shadow: 0 4px 8px rgba(33,150,243,0.3);
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                          stop:0 #42a5f5, stop:1 #2196f3);
-                transform: translateY(-2px);
-            }
-            QPushButton:pressed {
-                transform: translateY(0px);
-            }
-        """)
-        view_prescriptions_btn.clicked.connect(self.view_prescriptions_requested.emit)
+        new_prescription_btn.clicked.connect(self.start_fingerprint_workflow)
         
         buttons_layout.addStretch()
         buttons_layout.addWidget(new_prescription_btn)
-        buttons_layout.addWidget(view_prescriptions_btn)
         buttons_layout.addStretch()
         
         parent_layout.addWidget(buttons_frame)

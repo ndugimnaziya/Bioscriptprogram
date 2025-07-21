@@ -56,6 +56,12 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - 2025-01-21: Professional UI dizayn yeniləməsi - modern gradient rənglər
 - 2025-01-21: Segoe UI font və yaxşılaşdırılmış button dizaynları
 - 2025-01-21: Tam funksional Arduino AS608 kodu və dokumentasiya
+- 2025-01-21: Monday ingilis dilindən Azərbaycan dilinə tərcümə edildi
+- 2025-01-21: AI mesajlar HTML formatında düzgün render olunur və sıra düzəldildi
+- 2025-01-21: Düymələrin eni artırıldı və mətn kəsilməsi problemi həll edildi
+- 2025-01-21: Barmaq izi oxuma dialogu professional dizaynda yeniləndi
+- 2025-01-21: Yeni workflow sistemi: Barmaq izi → Pasiyent tarixçəsi → Yeni resept
+- 2025-01-21: Resept tarixçəsi düyməsi silindi, yalnız fingerprint-first workflow qaldı
 
 ## İstifadəçi Seçimləri
 - Dil: Azərbaycan dili (tam interfeys)
