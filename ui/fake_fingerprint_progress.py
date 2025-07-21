@@ -22,91 +22,112 @@ class FakeFingerprintProgressDialog(QDialog):
         self.start_fake_progress()
         
     def init_ui(self):
-        """UI yaratma"""
+        """Tam ekran UI yaratma"""
         self.setWindowTitle("🔍 Barmaq İzi Oxunur - BioScript")
-        self.setFixedSize(500, 350)
+        
+        # Tam ekran dialog
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        self.showFullScreen()
         self.setModal(True)
         
-        # Pəncərəni mərkəzə yerləşdir
-        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
-        
+        # Ana tam ekran layout
         layout = QVBoxLayout(self)
-        layout.setSpacing(30)
-        layout.setContentsMargins(40, 40, 40, 40)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         
-        # Ana çərçivə
+        # Tam ekran arxa fon
+        self.setStyleSheet("""
+            QDialog {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #e3f2fd, stop:0.5 #f0f8ff, 
+                                          stop:1 #e1f5fe);
+            }
+        """)
+        
+        # Mərkəz kontainer
+        center_widget = QFrame()
+        center_layout = QVBoxLayout(center_widget)
+        center_layout.setAlignment(Qt.AlignCenter)
+        center_layout.setContentsMargins(100, 80, 100, 80)
+        center_layout.setSpacing(40)
+        
+        # Ana çərçivə - daha böyük
         main_frame = QFrame()
+        main_frame.setFixedSize(650, 500)
         main_frame.setStyleSheet("""
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #ffffff, stop:1 #f8f9fa);
-                border: 3px solid #1e88e5;
-                border-radius: 20px;
-                padding: 20px;
+                border: 4px solid #1e88e5;
+                border-radius: 25px;
+                padding: 30px;
             }
         """)
         frame_layout = QVBoxLayout(main_frame)
-        frame_layout.setSpacing(25)
+        frame_layout.setSpacing(35)
         
-        # Başlıq
+        # Başlıq - daha böyük
         title = QLabel("🔍 Barmaq İzi Oxunur")
-        title.setFont(QFont("Segoe UI", 22, QFont.Bold))
+        title.setFont(QFont("Segoe UI", 26, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("""
             color: #1565c0; 
-            margin-bottom: 10px;
-            padding: 15px;
+            margin-bottom: 15px;
+            padding: 20px;
             background: #e3f2fd;
-            border-radius: 15px;
+            border-radius: 18px;
+            border: 2px solid #bbdefb;
         """)
         
-        # Barmaq izi animasiya ikonu
+        # Barmaq izi animasiya ikonu - böyük
         fingerprint_icon = QLabel("👆")
-        fingerprint_icon.setFont(QFont("Arial", 80))
+        fingerprint_icon.setFont(QFont("Arial", 100))
         fingerprint_icon.setAlignment(Qt.AlignCenter)
         fingerprint_icon.setStyleSheet("""
-            margin: 20px;
-            padding: 25px;
+            margin: 25px;
+            padding: 35px;
             background: #f5f5f5;
-            border-radius: 20px;
-            border: 3px dashed #1565c0;
+            border-radius: 25px;
+            border: 4px dashed #1565c0;
+            min-height: 150px;
         """)
         
-        # Status mesajı
+        # Status mesajı - böyük
         self.status_label = QLabel("Barmaq izi oxuma başlanır...")
-        self.status_label.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        self.status_label.setFont(QFont("Segoe UI", 16, QFont.Bold))
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setWordWrap(True)
         self.status_label.setStyleSheet("""
             color: #1565c0; 
-            margin: 15px;
-            padding: 12px;
+            margin: 20px;
+            padding: 18px;
             background: #e8f5e8;
-            border-radius: 12px;
-            border: 2px solid #4caf50;
-            min-height: 50px;
+            border-radius: 15px;
+            border: 3px solid #4caf50;
+            min-height: 60px;
         """)
         
-        # Progress bar
+        # Progress bar - böyük
         self.progress = QProgressBar()
-        self.progress.setFixedHeight(35)
+        self.progress.setFixedHeight(45)
         self.progress.setRange(0, 100)
         self.progress.setValue(0)
         self.progress.setStyleSheet("""
             QProgressBar {
-                border: 3px solid #1565c0;
-                border-radius: 18px;
+                border: 4px solid #1565c0;
+                border-radius: 22px;
                 text-align: center;
                 font-weight: bold;
                 background: white;
-                font-size: 14px;
+                font-size: 16px;
                 color: #1565c0;
+                margin: 10px;
             }
             QProgressBar::chunk {
                 background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
                                           stop: 0 #4caf50, stop: 1 #2e7d32);
-                border-radius: 15px;
-                margin: 3px;
+                border-radius: 18px;
+                margin: 4px;
             }
         """)
         
@@ -116,11 +137,49 @@ class FakeFingerprintProgressDialog(QDialog):
         frame_layout.addWidget(self.status_label)
         frame_layout.addWidget(self.progress)
         
-        layout.addWidget(main_frame)
+        # ESC açarı üçün çıxış düyməsi
+        exit_btn_layout = QHBoxLayout()
+        exit_btn = QPushButton("ÇIXIŞ (ESC)")
+        exit_btn.setFont(QFont("Segoe UI", 12))
+        exit_btn.setFixedSize(120, 40)
+        exit_btn.setStyleSheet("""
+            QPushButton {
+                background: #f44336;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 8px 16px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: #d32f2f;
+            }
+        """)
+        exit_btn.clicked.connect(self.reject)
+        exit_btn_layout.addStretch()
+        exit_btn_layout.addWidget(exit_btn)
+        
+        frame_layout.addLayout(exit_btn_layout)
+        
+        # Mərkəz containerə əlavə et
+        center_layout.addWidget(main_frame)
+        
+        # Ana layout-a əlavə et
+        layout.addWidget(center_widget)
         
         # Timer yaratma
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_progress)
+        
+        # ESC açarı üçün event filter
+        self.installEventFilter(self)
+        
+    def eventFilter(self, obj, event):
+        """ESC açarı ilə çıxış"""
+        if event.type() == event.KeyPress and event.key() == Qt.Key_Escape:
+            self.reject()
+            return True
+        return super().eventFilter(obj, event)
         
     def start_fake_progress(self):
         """Yalançı progress başlatma"""
