@@ -39,8 +39,8 @@ class BioScriptMainWindow(QMainWindow):
     
     def init_ui(self):
         """İstifadəçi interfeysi başlatma"""
-        self.setWindowTitle("BioScript - Tibbi Resept İdarəetmə Sistemi")
-        self.setGeometry(100, 100, 1400, 900)
+        self.setWindowTitle("BioScript - Səhiyyə Barmaqlarınızın Ucundadır!")
+        self.showMaximized()  # Tam ekran açılsın
         
         # Mərkəzi widget
         central_widget = QWidget()
@@ -71,9 +71,38 @@ class BioScriptMainWindow(QMainWindow):
         header_layout = QHBoxLayout(header_frame)
         
         # Logo və başlıq
-        title_label = QLabel("🏥 BioScript")
-        title_label.setFont(QFont("Arial", 24, QFont.Bold))
-        title_label.setStyleSheet("color: #2c3e50; padding: 10px;")
+        title_widget = QWidget()
+        title_layout = QHBoxLayout(title_widget)
+        title_layout.setSpacing(15)
+        title_layout.setContentsMargins(10, 5, 10, 5)
+        
+        # Logo (fingerprint emoji BioScript temasına uyğun)
+        logo_label = QLabel("👆")
+        logo_label.setFont(QFont("Arial", 48))
+        logo_label.setStyleSheet("margin: 0px; padding: 5px;")
+        title_layout.addWidget(logo_label)
+        
+        # Başlıq və sloqan
+        text_widget = QWidget()
+        text_layout = QVBoxLayout(text_widget)
+        text_layout.setSpacing(2)
+        text_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Ana başlıq
+        title_label = QLabel("BioScript")
+        title_label.setFont(QFont("Arial", 28, QFont.Bold))
+        title_label.setStyleSheet("color: #1e88e5; margin: 0px;")
+        
+        # Sloqan
+        slogan_label = QLabel("Səhiyyə Barmaqlarınızın Ucundadır!")
+        slogan_font = QFont("Arial", 12)
+        slogan_font.setItalic(True)
+        slogan_label.setFont(slogan_font)
+        slogan_label.setStyleSheet("color: #1976d2; margin: 0px;")
+        
+        text_layout.addWidget(title_label)
+        text_layout.addWidget(slogan_label)
+        title_layout.addWidget(text_widget)
         
         # Həkim məlumatları
         self.doctor_info_label = QLabel("Xoş gəlmisiniz")
@@ -85,7 +114,7 @@ class BioScriptMainWindow(QMainWindow):
         logout_btn.clicked.connect(self.logout)
         logout_btn.setMaximumWidth(100)
         
-        header_layout.addWidget(title_label)
+        header_layout.addWidget(title_widget)
         header_layout.addStretch()
         header_layout.addWidget(self.doctor_info_label)
         header_layout.addWidget(logout_btn)
@@ -112,71 +141,124 @@ class BioScriptMainWindow(QMainWindow):
         self.tab_widget.setTabEnabled(2, False)  # Statistika - həkim girişindən sonra
     
     def apply_style(self):
-        """Aplikasiya stilini tətbiq etmə"""
+        """Aplikasiya stilini tətbiq etmə - BioScript mavi teması"""
         style = """
         QMainWindow {
-            background-color: #f8f9fa;
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #f0f8ff, stop:1 #e1f5fe);
+        }
+        
+        QFrame {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #ffffff, stop:1 #f5f5f5);
+            border: 1px solid #1e88e5;
+            border-radius: 8px;
         }
         
         QTabWidget::pane {
-            border: 1px solid #dee2e6;
+            border: 2px solid #1e88e5;
             background-color: white;
+            border-radius: 8px;
         }
         
         QTabBar::tab {
-            background-color: #e9ecef;
-            padding: 8px 16px;
-            margin-right: 2px;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-        }
-        
-        QTabBar::tab:selected {
-            background-color: white;
-            border-bottom: 2px solid #007bff;
-        }
-        
-        QPushButton {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #e3f2fd, stop:1 #bbdefb);
+            padding: 12px 20px;
+            margin-right: 3px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            border: 1px solid #1e88e5;
+            color: #1565c0;
             font-weight: bold;
         }
         
-        QPushButton:hover {
-            background-color: #0056b3;
+        QTabBar::tab:selected {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #1e88e5, stop:1 #1976d2);
+            color: white;
+            border-bottom: none;
         }
         
-        QPushButton:pressed {
-            background-color: #004085;
+        QTabBar::tab:hover {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #90caf9, stop:1 #64b5f6);
         }
         
-        QLineEdit, QTextEdit, QComboBox {
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 8px;
+        QPushButton {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #1e88e5, stop:1 #1976d2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
             font-size: 14px;
         }
         
+        QPushButton:hover {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #1976d2, stop:1 #1565c0);
+        }
+        
+        QPushButton:pressed {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #1565c0, stop:1 #0d47a1);
+        }
+        
+        QLineEdit, QTextEdit, QComboBox {
+            border: 2px solid #1e88e5;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: white;
+        }
+        
         QLineEdit:focus, QTextEdit:focus, QComboBox:focus {
-            border-color: #80bdff;
-            outline: none;
+            border-color: #1976d2;
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #ffffff, stop:1 #f0f8ff);
         }
         
         QTableWidget {
-            gridline-color: #dee2e6;
-            selection-background-color: #e3f2fd;
+            gridline-color: #1e88e5;
+            selection-background-color: #bbdefb;
+            border: 2px solid #1e88e5;
+            border-radius: 6px;
+            background-color: white;
         }
         
         QTableWidget::item {
-            padding: 8px;
+            padding: 10px;
+            border-bottom: 1px solid #e3f2fd;
         }
         
         QTableWidget::item:selected {
-            background-color: #1976d2;
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #1e88e5, stop:1 #1976d2);
             color: white;
+        }
+        
+        QTableWidget::horizontalHeader {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #1e88e5, stop:1 #1976d2);
+            color: white;
+            font-weight: bold;
+        }
+        
+        QGroupBox {
+            font-weight: bold;
+            border: 2px solid #1e88e5;
+            border-radius: 8px;
+            margin-top: 1ex;
+            color: #1565c0;
+        }
+        
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 5px 0 5px;
+            background-color: white;
         }
         """
         
@@ -274,6 +356,7 @@ def main():
     app.setApplicationName("BioScript")
     app.setApplicationVersion("1.0.0")
     app.setOrganizationName("BioScript Team")
+    app.setApplicationDisplayName("BioScript - Səhiyyə Barmaqlarınızın Ucundadır!")
     
     # Ana pəncərə
     window = BioScriptMainWindow()
