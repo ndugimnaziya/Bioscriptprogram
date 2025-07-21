@@ -751,11 +751,16 @@ class PatientHistoryAIWidget(QWidget):
                 """
                 
                 for med in medications:
+                    # SQL cədvəlinə uyğun formatda məlumatları hazırla
+                    instructions = med['qaydalar']
+                    if med['müddət']:
+                        instructions += f" - {med['müddət']}"
+                    
                     item_values = (
                         prescription_id,
                         med['ad'],
                         med['dozaj'],
-                        f"{med['qaydalar']} - {med['müddət']}"
+                        instructions
                     )
                     cursor.execute(item_query, item_values)
             

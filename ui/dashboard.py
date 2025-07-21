@@ -96,65 +96,122 @@ class AnalyticsWidget(QWidget):
         """)
         recent_layout.addWidget(self.recent_list)
         
+        # Resept detaylarını göstərmək üçün click handler
+        self.recent_list.itemClicked.connect(self.show_prescription_details)
+        
         layout.addWidget(recent_frame, 1, 0, 1, 4)
         
+    def show_prescription_details(self, item):
+        """Resept detallarını göstər"""
+        try:
+            # Item data-dan prescription məlumatlarını al
+            prescription_data = item.data(Qt.UserRole)
+            if not prescription_data:
+                return
+            
+            prescription_id = prescription_data.get('id')
+            if not prescription_id:
+                return
+            
+            # Resept və dərman məlumatlarını verilənlər bazasından al
+            connection = self.db_manager.get_connection()
+            if not connection or not connection.is_connected():
+                QMessageBox.warning(self, "Verilənlər Bazası Xətası", 
+                                  "Bağlantı problemi")
+                return
+            
+            cursor = connection.cursor(dictionary=True)
+            
+            # Resept məlumatları
+            cursor.execute("""
+                SELECT p.*, d.name as həkim_adı, d.surname as həkim_soyadı,
+                       pat.name as pasiyent_adı, h.name as xəstəxana_adı
+                FROM prescriptions p
+                JOIN doctors d ON p.doctor_id = d.id
+                JOIN patients pat ON p.patient_id = pat.id
+                JOIN hospitals h ON p.hospital_id = h.id
+                WHERE p.id = %s
+            """, (prescription_id,))
+            
+            prescription = cursor.fetchone()
+            if not prescription:
+                return
+            
+            # Dərman məlumatları
+            cursor.execute("""
+                SELECT name, dosage, instructions
+                FROM prescription_items
+                WHERE prescription_id = %s
+            """, (prescription_id,))
+            
+            medications = cursor.fetchall()
+            
+            # Detallı məlumat dialoqu
+            details = f"""
+RESEPT DETALLARI
+
+📅 Tarix: {prescription['issued_at'].strftime('%d.%m.%Y %H:%M')}
+👤 Pasiyent: {prescription['pasiyent_adı']}
+🏥 Xəstəxana: {prescription['xəstəxana_adı']}
+
+🩺 Şikayət: {prescription['complaint'] or 'Qeyd edilməyib'}
+🔬 Diaqnoz: {prescription['diagnosis'] or 'Qeyd edilməyib'}
+
+💊 DƏRMANLAR:
+"""
+            
+            if medications:
+                for i, med in enumerate(medications, 1):
+                    details += f"""
+{i}. {med['name']}
+   📏 Dozaj: {med['dosage'] or 'Qeyd edilməyib'}
+   📋 İstifadə: {med['instructions'] or 'Qeyd edilməyib'}
+"""
+            else:
+                details += "Dərman təyin edilməyib"
+            
+            QMessageBox.information(self, "Resept Detalları", details)
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Xəta", f"Resept məlumatları alınarkən xəta: {str(e)}")
+        
     def create_stat_card(self, title, value, unit, color):
-        """Modern statistika kartı yaratma"""
+        """Sadə statistika kartı yaratma"""
         card = QFrame()
-        card.setFixedSize(200, 120)
+        card.setFixedSize(180, 100)
         card.setStyleSheet(f"""
             QFrame {{
-                background: {color};
+                background: white;
                 border: 2px solid {color};
-                border-radius: 12px;
-                margin: 8px;
-            }}
-            QFrame:hover {{
-                border: 2px solid #ffffff;
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                          stop:0 {color}, stop:1 {color}99);
+                border-radius: 8px;
+                margin: 5px;
             }}
         """)
         
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(15, 10, 15, 10)
-        layout.setSpacing(2)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(5)
         
-        # İkon və başlıq
-        title_layout = QHBoxLayout()
-        icon_map = {
-            "Bu Gün": "📅",
-            "Bu Ay": "📊", 
-            "Ümumi": "📈",
-            "Pasiyentlər": "👥"
-        }
-        
-        icon_label = QLabel(icon_map.get(title, "📋"))
-        icon_label.setFont(QFont("Segoe UI", 16))
-        icon_label.setStyleSheet("color: white;")
-        
+        # Başlıq
         title_label = QLabel(title)
-        title_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        title_label.setStyleSheet("color: white;")
-        
-        title_layout.addWidget(icon_label)
-        title_layout.addWidget(title_label)
-        title_layout.addStretch()
+        title_label.setFont(QFont("Segoe UI", 11, QFont.Bold))
+        title_label.setStyleSheet(f"color: {color};")
+        title_label.setAlignment(Qt.AlignCenter)
         
         # Dəyər
         value_label = QLabel(value)
-        value_label.setFont(QFont("Segoe UI", 28, QFont.Bold))
-        value_label.setStyleSheet("color: white;")
+        value_label.setFont(QFont("Segoe UI", 32, QFont.Bold))
+        value_label.setStyleSheet(f"color: {color};")
         value_label.setAlignment(Qt.AlignCenter)
         card.value_label = value_label
         
         # Vahid
         unit_label = QLabel(unit)
         unit_label.setFont(QFont("Segoe UI", 10))
-        unit_label.setStyleSheet("color: rgba(255,255,255,0.8);")
+        unit_label.setStyleSheet("color: #666;")
         unit_label.setAlignment(Qt.AlignCenter)
         
-        layout.addLayout(title_layout)
+        layout.addWidget(title_label)
         layout.addWidget(value_label)
         layout.addWidget(unit_label)
         
