@@ -44,90 +44,93 @@ class FakeFingerprintProgressDialog(QDialog):
             }
         """)
         
-        # Mərkəz kontainer
+        # Mərkəz kontainer - tam ekran mərkəzləşdirmə
         center_widget = QFrame()
         center_layout = QVBoxLayout(center_widget)
         center_layout.setAlignment(Qt.AlignCenter)
-        center_layout.setContentsMargins(100, 80, 100, 80)
-        center_layout.setSpacing(40)
+        center_layout.setContentsMargins(50, 50, 50, 50)
+        center_layout.setSpacing(0)
         
-        # Ana çərçivə - daha böyük
+        # Ana çərçivə - daha böyük və mərkəzləşdirilmiş
         main_frame = QFrame()
-        main_frame.setFixedSize(650, 500)
+        main_frame.setFixedSize(700, 600)
         main_frame.setStyleSheet("""
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #ffffff, stop:1 #f8f9fa);
                 border: 4px solid #1e88e5;
                 border-radius: 25px;
-                padding: 30px;
+                padding: 40px;
+                margin: auto;
             }
         """)
         frame_layout = QVBoxLayout(main_frame)
-        frame_layout.setSpacing(35)
+        frame_layout.setSpacing(25)
+        frame_layout.setContentsMargins(30, 30, 30, 30)
         
-        # Başlıq - daha böyük
+        # Başlıq - təmiz və böyük
         title = QLabel("🔍 Barmaq İzi Oxunur")
-        title.setFont(QFont("Segoe UI", 26, QFont.Bold))
+        title.setFont(QFont("Segoe UI", 24, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
+        title.setFixedHeight(80)
         title.setStyleSheet("""
             color: #1565c0; 
-            margin-bottom: 15px;
-            padding: 20px;
+            padding: 15px;
             background: #e3f2fd;
-            border-radius: 18px;
+            border-radius: 15px;
             border: 2px solid #bbdefb;
+            margin-bottom: 10px;
         """)
         
-        # Barmaq izi animasiya ikonu - böyük
+        # Barmaq izi animasiya ikonu - təmiz ölçü
         fingerprint_icon = QLabel("👆")
-        fingerprint_icon.setFont(QFont("Arial", 100))
+        fingerprint_icon.setFont(QFont("Arial", 80))
         fingerprint_icon.setAlignment(Qt.AlignCenter)
+        fingerprint_icon.setFixedHeight(180)
         fingerprint_icon.setStyleSheet("""
-            margin: 25px;
-            padding: 35px;
+            padding: 30px;
             background: #f5f5f5;
-            border-radius: 25px;
-            border: 4px dashed #1565c0;
-            min-height: 150px;
+            border-radius: 20px;
+            border: 3px dashed #1565c0;
+            margin: 10px 0;
         """)
         
-        # Status mesajı - böyük
+        # Status mesajı - təmiz
         self.status_label = QLabel("Barmaq izi oxuma başlanır...")
-        self.status_label.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        self.status_label.setFont(QFont("Segoe UI", 14, QFont.Bold))
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setWordWrap(True)
+        self.status_label.setFixedHeight(70)
         self.status_label.setStyleSheet("""
             color: #1565c0; 
-            margin: 20px;
-            padding: 18px;
+            padding: 15px;
             background: #e8f5e8;
-            border-radius: 15px;
-            border: 3px solid #4caf50;
-            min-height: 60px;
+            border-radius: 12px;
+            border: 2px solid #4caf50;
+            margin: 10px 0;
         """)
         
-        # Progress bar - böyük
+        # Progress bar - təmiz ölçü
         self.progress = QProgressBar()
-        self.progress.setFixedHeight(45)
+        self.progress.setFixedHeight(40)
         self.progress.setRange(0, 100)
         self.progress.setValue(0)
         self.progress.setStyleSheet("""
             QProgressBar {
-                border: 4px solid #1565c0;
-                border-radius: 22px;
+                border: 3px solid #1565c0;
+                border-radius: 20px;
                 text-align: center;
                 font-weight: bold;
                 background: white;
-                font-size: 16px;
+                font-size: 14px;
                 color: #1565c0;
-                margin: 10px;
+                margin: 10px 0;
             }
             QProgressBar::chunk {
                 background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
                                           stop: 0 #4caf50, stop: 1 #2e7d32);
-                border-radius: 18px;
-                margin: 4px;
+                border-radius: 17px;
+                margin: 3px;
             }
         """)
         
@@ -137,18 +140,22 @@ class FakeFingerprintProgressDialog(QDialog):
         frame_layout.addWidget(self.status_label)
         frame_layout.addWidget(self.progress)
         
-        # ESC açarı üçün çıxış düyməsi
+        # Boş yer əlavə et
+        frame_layout.addStretch(1)
+        
+        # ESC açarı üçün çıxış düyməsi - alt hissədə
         exit_btn_layout = QHBoxLayout()
+        exit_btn_layout.setContentsMargins(0, 15, 0, 0)
         exit_btn = QPushButton("ÇIXIŞ (ESC)")
-        exit_btn.setFont(QFont("Segoe UI", 12))
-        exit_btn.setFixedSize(120, 40)
+        exit_btn.setFont(QFont("Segoe UI", 11))
+        exit_btn.setFixedSize(110, 35)
         exit_btn.setStyleSheet("""
             QPushButton {
                 background: #f44336;
                 color: white;
                 border: none;
-                border-radius: 8px;
-                padding: 8px 16px;
+                border-radius: 6px;
+                padding: 6px 12px;
                 font-weight: bold;
             }
             QPushButton:hover {
