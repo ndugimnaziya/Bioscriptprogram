@@ -53,7 +53,6 @@ prescription_items - dərman detalları (id, prescription_id, name, dosage, inst
 
 ## Layihə Strukturu
 - `main.py` - Əsas həkim paneli GUI
-- `admin_panel.py` - Admin panel
 - `database/` - Verilənlər bazası əlaqələri
 - `biometric/` - Barmaq izi modulları
 - `ui/` - GUI komponentləri
