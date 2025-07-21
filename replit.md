@@ -45,7 +45,9 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - **Test Həkim**: huseyn/huseyn
 
 ## Son Dəyişikliklər
-- 2025-01-21: **SON YENİLİK** - Barmaq izi oxuma dialoqu düzgün spacing və 700x600px tam ekran edildi
+- 2025-01-21: **SON YENİLİK** - Prescription_items cədvəlindən dərman məlumatları düzgün alınması həll edildi
+- 2025-01-21: **YENİ** - load_patient_history funksiyasında JOIN query ilə dərmanlar alınır
+- 2025-01-21: **YENİ** - Barmaq izi oxuma dialoqu düzgün spacing və 600x450px tam ekran edildi
 - 2025-01-21: **YENİ** - Hər element fixed height-la ayrı-ayrı düzəldildi (başlıq:80px, ikon:180px, status:70px)
 - 2025-01-21: **YENİ** - Yeni resept workflow-unda tam ekran barmaq izi dialoqu (650x500px mərkəzləşdirilmiş)
 - 2025-01-21: **YENİ** - ESC açarı və çıxış düyməsi əlavə edildi barmaq izi səhifəsinə

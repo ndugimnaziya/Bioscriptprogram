@@ -392,7 +392,7 @@ class PatientHistoryAIWidget(QWidget):
             
             query = """
             SELECT p.id, p.complaint as şikayət, p.diagnosis as diaqnoz, 
-                   '' as dərmanlar, p.issued_at as yaradılma_tarixi,
+                   p.issued_at as yaradılma_tarixi,
                    d.name as hekim_adi, d.surname as hekim_soyadi
             FROM prescriptions p
             JOIN doctors d ON p.doctor_id = d.id
@@ -412,19 +412,27 @@ class PatientHistoryAIWidget(QWidget):
                 presc_id = prescription['id']
                 sikayət = prescription['şikayət'] or ''
                 diaqnoz = prescription['diaqnoz'] or ''
-                dərmanlar = prescription['dərmanlar'] or ''
                 yaradilma = prescription['yaradılma_tarixi']
                 hekim_ad = prescription['hekim_adi'] or ''
                 hekim_soyad = prescription['hekim_soyadi'] or ''
                 
-                # Dərmanları parse et
-                try:
-                    if dərmanlar:
-                        meds = json.loads(dərmanlar) if isinstance(dərmanlar, str) else dərmanlar
-                    else:
-                        meds = []
-                except:
-                    meds = []
+                # Dərmanları prescription_items cədvəlindən al
+                meds_query = """
+                SELECT name, dosage, instructions
+                FROM prescription_items
+                WHERE prescription_id = %s
+                """
+                cursor.execute(meds_query, (presc_id,))
+                meds_data = cursor.fetchall()
+                
+                # Dərmanları düzgün formatda yığ
+                meds = []
+                for med in meds_data:
+                    meds.append({
+                        'ad': med['name'] or 'Bilinməyən',
+                        'dozaj': med['dosage'] or 'Qeyd edilməyib',
+                        'qaydalar': med['instructions'] or 'Qeyd edilməyib'
+                    })
                 
                 # Tarixi düzgün format et
                 yaradilma_obj = yaradilma
