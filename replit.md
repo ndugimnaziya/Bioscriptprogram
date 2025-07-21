@@ -44,7 +44,15 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - **Struktur**: Həkimlər, pasiyentlər, reseptlər, xəstəxanalar
 - **Test Həkim**: huseyn/huseyn
 
-## Son Dəyişikliklər
+## Son Dəyişikliklər  
+- 2025-07-21: **MIGRATION** - BioScript Pharmacy System Replit mühitinə miqrasiya edildi
+- 2025-07-21: **YENİ** - Aptekçi giriş sistemi yaradıldı (ali/ali123)
+- 2025-07-21: **YENİ** - MySQL verilənlər bazası qoşulması və test məlumatları
+- 2025-07-21: **YENİ** - Pharmacy Dashboard statistika və analitika sistemi
+- 2025-07-21: **YENİ** - Barmaq izi oxuma simulasiyası (fake progress)
+- 2025-07-21: **YENİ** - Aktiv reseptlər və satış sistemi
+- 2025-07-21: **YENİ** - Dərman seçimi və qiymət hesablama
+- 2025-07-21: **YENİ** - Satış qeydiyyatı və komisyon hesablama
 - 2025-01-21: **SON YENİLİK** - Resept detallarında müddət məlumatının göstərilməməsi problemi həll edildi
 - 2025-01-21: **YENİ** - Instructions sahəsindən müddət məlumatı ayrı parsing edilir (" - " separator ilə)
 - 2025-01-21: **YENİ** - Yeni pasiyent qeydiyyatı MySQL strukturuna uyğunlaşdırıldı
