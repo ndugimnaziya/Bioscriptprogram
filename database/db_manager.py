@@ -61,7 +61,16 @@ class DatabaseManager:
     
     def get_connection(self):
         """Verilənlər bazası bağlantısını qaytarma"""
-        return self.connection
+        # Bağlantını yoxla və yenilə (əgər lazımdırsa)
+        try:
+            if self.connection is None or not self.connection.is_connected():
+                print("MySQL bağlantısı yenilənir...")
+                self.connect()
+            return self.connection
+        except Exception as e:
+            print(f"Bağlantı yoxlanması xətası: {e}")
+            self.connect()
+            return self.connection
     
     def insert_test_data(self):
         """Test məlumatları əlavə etmə"""

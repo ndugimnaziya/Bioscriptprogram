@@ -263,7 +263,11 @@ class PatientHistoryAIWidget(QWidget):
         """Pasiyent tarixçəsini yüklə"""
         try:
             connection = self.db_manager.get_connection()
-            cursor = connection.cursor()
+            if not connection or not connection.is_connected():
+                QMessageBox.warning(self, "Verilənlər Bazası Xətası", 
+                                  "Pasiyent tarixçəsi yoxlanıldı. Connection not available")
+                return
+            cursor = connection.cursor(dictionary=True)
             
             query = """
             SELECT p.id, p.complaint as şikayət, p.diagnosis as diaqnoz, 
@@ -412,7 +416,11 @@ class PatientHistoryAIWidget(QWidget):
             
         try:
             connection = self.db_manager.get_connection()
-            cursor = connection.cursor()
+            if not connection or not connection.is_connected():
+                QMessageBox.critical(self, "Verilənlər Bazası Xətası", 
+                                   "Verilənlər bazasına bağlantı yoxdur!")
+                return
+            cursor = connection.cursor(dictionary=True)
             
             # Resepti əlavə et
             # İlk növbədə prescription yaradırıq

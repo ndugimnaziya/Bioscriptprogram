@@ -181,7 +181,11 @@ class PatientSelectionDialog(QDialog):
         try:
             # Pasiyent məlumatlarını verilənlər bazasından al
             connection = self.db_manager.get_connection()
-            cursor = connection.cursor()
+            if not connection or not connection.is_connected():
+                QMessageBox.warning(self, "Verilənlər Bazası Xətası", 
+                                  "Verilənlər bazasına bağlantı yoxdur!")
+                return
+            cursor = connection.cursor(dictionary=True)
             
             query = """
             SELECT id, name as ad, fin_code as soyad, birth_date as doğum_tarixi, 
@@ -434,7 +438,11 @@ class NewPatientDialog(QDialog):
             
         try:
             connection = self.db_manager.get_connection()
-            cursor = connection.cursor()
+            if not connection or not connection.is_connected():
+                QMessageBox.critical(self, "Verilənlər Bazası Xətası", 
+                                   "Verilənlər bazasına bağlantı yoxdur!")
+                return
+            cursor = connection.cursor(dictionary=True)
             
             # Pasiyenti əlavə et
             query = """
