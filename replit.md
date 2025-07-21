@@ -60,6 +60,11 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - 2025-01-21: Segoe UI font və yaxşılaşdırılmış button dizaynları
 - 2025-01-21: AI mesajlar HTML formatında düzgün render olunur
 - 2025-01-21: Tam Azərbaycan dili interfeys və mesajları
+- 2025-01-21: İki AI düyməsi: "Tarixçə Təhlil Et" və "AI Məsləhət Al" 
+- 2025-01-21: Keçmiş reseptlərə klik ediləndə detallı məlumat göstərilir
+- 2025-01-21: AI mesajları düzgün scroll ilə altda göstərilir
+- 2025-01-21: Professional login ekranı - Azərbaycan Səhiyyə Nazirliyi teması
+- 2025-01-21: Dashboard header daha professional və informativ edildi
 
 ## İstifadəçi Seçimləri
 - Dil: Azərbaycan dili (tam interfeys)

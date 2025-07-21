@@ -78,30 +78,38 @@ class PatientHistoryAIWidget(QWidget):
         
         history_layout = QVBoxLayout(history_frame)
         
-        # Keçmiş reseptlər listi
+        # Keçmiş reseptlər listi - Clickable və professional
         self.history_list = QListWidget()
+        self.history_list.itemClicked.connect(self.show_prescription_details)
         self.history_list.setStyleSheet("""
             QListWidget {
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
+                border: 2px solid #e3f2fd;
+                border-radius: 12px;
                 background: #fafafa;
-                padding: 8px;
+                padding: 10px;
                 font-family: 'Segoe UI';
-                font-size: 12px;
+                font-size: 13px;
             }
             QListWidget::item {
-                padding: 12px;
-                border-bottom: 1px solid #e0e0e0;
-                border-radius: 4px;
-                margin: 2px 0;
+                padding: 15px;
+                border: 1px solid #e8f4fd;
+                border-radius: 8px;
+                margin: 3px 0;
                 background: white;
+                cursor: pointer;
             }
             QListWidget::item:hover {
-                background: #f0f8ff;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #e3f2fd, stop:1 #f0f8ff);
+                border: 2px solid #2196f3;
+                transform: scale(1.02);
             }
             QListWidget::item:selected {
-                background: #e3f2fd;
-                color: #1565c0;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #2196f3, stop:1 #1976d2);
+                color: white;
+                border: 2px solid #1565c0;
+                font-weight: bold;
             }
         """)
         
@@ -173,22 +181,48 @@ class PatientHistoryAIWidget(QWidget):
         
         prescription_layout = QVBoxLayout(prescription_frame)
         
-        # AI tövsiyələri sahəsi
+        # AI tövsiyələri sahəsi - Professional və scroll düzgün işləsin
+        ai_label = QLabel("🤖 AI Tövsiyələri və Təhlil:")
+        ai_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        ai_label.setStyleSheet("color: #1565c0; margin: 8px 0;")
+        
         self.ai_recommendations = QTextEdit()
-        self.ai_recommendations.setPlaceholderText("AI təhlil edildikdən sonra tövsiyələr burada görünəcək...")
-        self.ai_recommendations.setMaximumHeight(150)
+        self.ai_recommendations.setPlaceholderText("AI təhlil və məsləhət almaq üçün sol tərəfdən düymələrə basın...")
+        self.ai_recommendations.setMaximumHeight(180)
+        self.ai_recommendations.setReadOnly(True)
+        
+        # Yeni mesajları altda göstərmək üçün
+        self.ai_recommendations.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        
         self.ai_recommendations.setStyleSheet("""
             QTextEdit {
-                border: 2px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 10px;
-                background: #f8f9fa;
+                border: 2px solid #e3f2fd;
+                border-radius: 12px;
+                padding: 15px;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #f8f9fa, stop:1 #ffffff);
                 font-family: 'Segoe UI';
-                font-size: 12px;
+                font-size: 13px;
+                color: #2c3e50;
+                line-height: 1.5;
+            }
+            QTextEdit:focus {
+                border: 2px solid #2196f3;
+                background: white;
+            }
+            QScrollBar:vertical {
+                background: #f0f0f0;
+                width: 12px;
+                border-radius: 6px;
+            }
+            QScrollBar::handle:vertical {
+                background: #2196f3;
+                border-radius: 6px;
+                min-height: 20px;
             }
         """)
-        self.ai_recommendations.setReadOnly(True)
-        prescription_layout.addWidget(QLabel("🤖 AI Tövsiyələri:"))
+        
+        prescription_layout.addWidget(ai_label)
         prescription_layout.addWidget(self.ai_recommendations)
         
         # Resept formu
@@ -461,9 +495,19 @@ class PatientHistoryAIWidget(QWidget):
         self.ai_analyze_btn.setText("🤖 Tarixçə Təhlil Et")
         
         if analysis_result:
-            self.ai_recommendations.setPlainText(analysis_result)
+            # Yeni mesajı append et və aşağı scroll et
+            current_text = self.ai_recommendations.toPlainText()
+            if current_text:
+                new_text = current_text + "\n\n" + "="*50 + "\n🤖 TARIXÇƏ TƏHLİL NƏTİCƏSİ\n" + "="*50 + "\n" + analysis_result
+            else:
+                new_text = "🤖 TARIXÇƏ TƏHLİL NƏTİCƏSİ\n" + "="*50 + "\n" + analysis_result
+            
+            self.ai_recommendations.setPlainText(new_text)
+            # Aşağı scroll et
+            scrollbar = self.ai_recommendations.verticalScrollBar()
+            scrollbar.setValue(scrollbar.maximum())
         else:
-            self.ai_recommendations.setPlainText("AI təhlil zamanı xəta baş verdi.")
+            self.ai_recommendations.append("\n❌ AI təhlil zamanı xəta baş verdi.")
     
     def on_direct_ai_completed(self, analysis_result):
         """Birbaşa AI məsləhət tamamlandı"""
@@ -471,9 +515,50 @@ class PatientHistoryAIWidget(QWidget):
         self.ai_direct_btn.setText("💡 AI Məsləhət Al")
         
         if analysis_result:
-            self.ai_recommendations.setPlainText(analysis_result)
+            # Yeni mesajı append et və aşağı scroll et
+            current_text = self.ai_recommendations.toPlainText()
+            if current_text:
+                new_text = current_text + "\n\n" + "="*50 + "\n💡 AI MƏSLƏHƏT\n" + "="*50 + "\n" + analysis_result
+            else:
+                new_text = "💡 AI MƏSLƏHƏT\n" + "="*50 + "\n" + analysis_result
+            
+            self.ai_recommendations.setPlainText(new_text)
+            # Aşağı scroll et
+            scrollbar = self.ai_recommendations.verticalScrollBar()
+            scrollbar.setValue(scrollbar.maximum())
         else:
-            self.ai_recommendations.setPlainText("AI məsləhət zamanı xəta baş verdi.")
+            self.ai_recommendations.append("\n❌ AI məsləhət zamanı xəta baş verdi.")
+    
+    def show_prescription_details(self, item):
+        """Resept detallarını göstər"""
+        history_data = item.data(Qt.UserRole)
+        if history_data:
+            # Detallı məlumat dialog açaq
+            details = f"""
+📋 RESEPT DETALLARI
+
+📅 Tarix: {history_data['tarix'].strftime('%d.%m.%Y %H:%M') if hasattr(history_data['tarix'], 'strftime') else str(history_data['tarix'])}
+👨‍⚕️ Həkim: {history_data['həkim']}
+
+🩺 ŞİKAYƏT:
+{history_data['şikayət']}
+
+🔬 DİAQNOZ:
+{history_data['diaqnoz']}
+
+💊 DƏRMANLAR:
+"""
+            
+            for i, med in enumerate(history_data['dərmanlar'], 1):
+                if isinstance(med, dict):
+                    details += f"{i}. {med.get('ad', 'Bilinməyən')}\n"
+                    details += f"   Dozaj: {med.get('dozaj', 'Qeyd edilməyib')}\n"
+                    details += f"   Qaydalar: {med.get('qaydalar', 'Qeyd edilməyib')}\n"
+                    details += f"   Müddət: {med.get('müddət', 'Qeyd edilməyib')}\n\n"
+                else:
+                    details += f"{i}. {med}\n\n"
+            
+            QMessageBox.information(self, "Resept Detalları", details)
             
     def add_medication_row(self):
         """Dərman cədvəlinə yeni sətir əlavə et"""

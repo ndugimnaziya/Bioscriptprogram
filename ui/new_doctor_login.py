@@ -110,44 +110,43 @@ class NewDoctorLoginWindow(QDialog):
         login_layout.setContentsMargins(40, 40, 40, 40)
         login_layout.setSpacing(20)
         
-        # Panel başlığı
-        panel_title = QLabel("Həkim Girişi")
-        panel_title.setFont(QFont("Arial", 24, QFont.Bold))
+        # Panel başlığı - Professional
+        panel_title = QLabel("🩺 HƏKİM GİRİŞ SİSTEMİ")
+        panel_title.setFont(QFont("Segoe UI", 20, QFont.Bold))
         panel_title.setAlignment(Qt.AlignCenter)
-        panel_title.setStyleSheet("color: #1e88e5; margin-bottom: 10px;")
+        panel_title.setStyleSheet("color: #1e88e5; margin-bottom: 15px; letter-spacing: 1px;")
         
-        # İstifadəçi adı
-        username_label = QLabel("İstifadəçi adı:")
-        username_label.setFont(QFont("Arial", 12, QFont.Bold))
-        username_label.setStyleSheet("color: #424242;")
+        # İstifadəçi adı - Professional
+        username_label = QLabel("👨‍⚕️ Həkim İstifadəçi Adı:")
+        username_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        username_label.setStyleSheet("color: #1565c0; margin-top: 10px;")
         
         self.username_input = QLineEdit()
-        self.username_input.setPlaceholderText("İstifadəçi adınızı daxil edin")
+        self.username_input.setPlaceholderText("Həkim lisenziya ID-nizi daxil edin")
         self.username_input.setFixedHeight(45)
         self.username_input.setText("huseyn")  # Test üçün
         
-        # Şifrə
-        password_label = QLabel("Şifrə:")
-        password_label.setFont(QFont("Arial", 12, QFont.Bold))
-        password_label.setStyleSheet("color: #424242;")
+        # Şifrə - Professional
+        password_label = QLabel("🔐 Təhlükəsizlik Şifrəsi:")
+        password_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        password_label.setStyleSheet("color: #1565c0;")
         
         self.password_input = QLineEdit()
         self.password_input.setEchoMode(QLineEdit.Password)
-        self.password_input.setPlaceholderText("Şifrənizi daxil edin")
+        self.password_input.setPlaceholderText("Təhlükəsizlik şifrənizi daxil edin")
         self.password_input.setFixedHeight(45)
         self.password_input.setText("huseyn")  # Test üçün
         
-        # Giriş düyməsi
-        login_btn = QPushButton("Giriş")
-        login_btn.setFixedHeight(50)
-        login_btn.setFont(QFont("Arial", 14, QFont.Bold))
+        # Professional düymələr
+        login_btn = QPushButton("🚀 SİSTEMƏ GİR")
+        login_btn.setFixedHeight(55)
+        login_btn.setFont(QFont("Segoe UI", 14, QFont.Bold))
         login_btn.clicked.connect(self.login)
         login_btn.setObjectName("loginButton")
         
-        # Ləğv düyməsi
-        cancel_btn = QPushButton("Ləğv et")
-        cancel_btn.setFixedHeight(40)
-        cancel_btn.setFont(QFont("Arial", 12))
+        cancel_btn = QPushButton("❌ LƏĞV ET")
+        cancel_btn.setFixedHeight(45)
+        cancel_btn.setFont(QFont("Segoe UI", 12))
         cancel_btn.clicked.connect(self.reject)
         cancel_btn.setObjectName("cancelButton")
         
