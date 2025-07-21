@@ -21,27 +21,31 @@ class NewDoctorLoginWindow(QDialog):
         self.init_ui()
         
     def init_ui(self):
-        """Sadə interfeys yaratma"""
+        """Tam ekran interfeys yaratma"""
         self.setWindowTitle("BioScript - Həkim Girişi")
-        self.setFixedSize(550, 720)
+        self.showMaximized()  # Tam ekran
         self.setModal(True)
         
-        # Pəncərəni mərkəzləşdir
-        self.move(
-            (self.screen().geometry().width() - self.width()) // 2,
-            (self.screen().geometry().height() - self.height()) // 2
-        )
-        
-        # Ana layout
+        # Ana layout - tam ekran üçün
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(40, 25, 40, 25)
-        main_layout.setSpacing(20)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Mərkəz container
+        center_widget = QWidget()
+        center_layout = QVBoxLayout(center_widget)
+        center_layout.setAlignment(Qt.AlignCenter)
+        center_layout.setContentsMargins(50, 50, 50, 50)
+        center_layout.setSpacing(30)
         
         # Logo
-        self.create_logo_section(main_layout)
+        self.create_logo_section(center_layout)
         
         # Giriş formu
-        self.create_login_form(main_layout)
+        self.create_login_form(center_layout)
+        
+        # Mərkəz widget-i ana layout-a əlavə et
+        main_layout.addWidget(center_widget)
         
         # Stil tətbiq et
         self.apply_simple_style()
@@ -58,11 +62,11 @@ class NewDoctorLoginWindow(QDialog):
             logo_label = QLabel()
             pixmap = QPixmap("static/bioscript_logo_original.png")
             if not pixmap.isNull():
-                # Logoyu uyğun ölçüyə gətir (400x160 maksimum)
-                scaled_pixmap = pixmap.scaled(400, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                # Tam ekran üçün logoyu böyüt (600x240 maksimum)
+                scaled_pixmap = pixmap.scaled(600, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 logo_label.setPixmap(scaled_pixmap)
                 logo_label.setAlignment(Qt.AlignCenter)
-                logo_label.setStyleSheet("background: transparent;")
+                logo_label.setStyleSheet("background: transparent; margin-bottom: 20px;")
                 logo_layout.addWidget(logo_label)
             else:
                 raise Exception("Logo yüklənmədi")
@@ -75,11 +79,11 @@ class NewDoctorLoginWindow(QDialog):
             logo_text.setStyleSheet("color: #1e88e5; background: transparent;")
             logo_layout.addWidget(logo_text)
         
-        # Sloqan
+        # Sloqan - tam ekran üçün böyük
         slogan = QLabel("Səhiyyə Barmaqlarınızın Ucundadır!")
-        slogan.setFont(QFont("Arial", 16))
+        slogan.setFont(QFont("Arial", 20))
         slogan.setAlignment(Qt.AlignCenter)
-        slogan.setStyleSheet("color: #666; font-style: italic; margin-top: 10px;")
+        slogan.setStyleSheet("color: #555; font-style: italic; margin-top: 15px; margin-bottom: 30px;")
         logo_layout.addWidget(slogan)
         
         layout.addWidget(logo_frame)
@@ -88,9 +92,11 @@ class NewDoctorLoginWindow(QDialog):
         """Giriş formu yaratma"""
         form_frame = QFrame()
         form_frame.setObjectName("loginForm")
+        form_frame.setFixedWidth(500)  # Sabit genişlik
+        form_frame.setMaximumHeight(450)  # Maksimum yüksəklik
         form_layout = QVBoxLayout(form_frame)
         form_layout.setSpacing(25)
-        form_layout.setContentsMargins(30, 30, 30, 30)
+        form_layout.setContentsMargins(40, 40, 40, 40)
         
         # Başlıq - daha böyük və görünən
         title = QLabel("Həkim Girişi")
@@ -151,7 +157,8 @@ class NewDoctorLoginWindow(QDialog):
         self.setStyleSheet("""
             QDialog {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                          stop:0 #f8f9fa, stop:1 #e3f2fd);
+                                          stop:0 #e3f2fd, stop:0.3 #f0f8ff, 
+                                          stop:0.7 #f8f9fa, stop:1 #e1f5fe);
             }
             
             QFrame#loginForm {
