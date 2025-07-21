@@ -199,7 +199,14 @@ class PatientSelectionDialog(QDialog):
             self.patient_list.clear()
             
             for patient in patients:
-                patient_id, ad, soyad, dogum_tarixi, telefon, email, unvan = patient
+                # Dictionary formatında məlumatları al
+                patient_id = patient['id']
+                ad = patient['ad']
+                soyad = patient['soyad']  # bu artıq fin_code-dur
+                dogum_tarixi = patient['doğum_tarixi']
+                telefon = patient['telefon']
+                email = patient['email']
+                unvan = patient['ünvan']
                 
                 # Yaş hesabla
                 if dogum_tarixi:
@@ -210,9 +217,8 @@ class PatientSelectionDialog(QDialog):
                 
                 # List item mətnini format et
                 item_text = f"""
-                📋 {ad} {soyad} (ID: {patient_id})
+                📋 {ad} (FIN: {soyad}) - ID: {patient_id}
                 🎂 Yaş: {yas}   📞 Tel: {telefon or 'Yoxdur'}
-                📧 Email: {email or 'Yoxdur'}
                 🏠 Ünvan: {unvan or 'Yoxdur'}
                 """
                 
@@ -232,7 +238,6 @@ class PatientSelectionDialog(QDialog):
                 self.patient_list.addItem(item)
                 
             cursor.close()
-            connection.close()
             
         except Exception as e:
             QMessageBox.warning(self, "Xəta", f"Pasiyentlər yüklənərkən xəta: {str(e)}")
@@ -466,7 +471,6 @@ class NewPatientDialog(QDialog):
             connection.commit()
             
             cursor.close()
-            connection.close()
             
             QMessageBox.information(self, "Uğur", "Pasiyent uğurla qeydiyyatdan keçdi!")
             self.accept()

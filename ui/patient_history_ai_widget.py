@@ -322,7 +322,6 @@ class PatientHistoryAIWidget(QWidget):
                 self.history_list.addItem(item)
                 
             cursor.close()
-            connection.close()
             
         except Exception as e:
             QMessageBox.warning(self, "Xəta", f"Pasiyent tarixçəsi yüklənərkən xəta: {str(e)}")
@@ -461,7 +460,6 @@ class PatientHistoryAIWidget(QWidget):
             connection.commit()
             
             cursor.close()
-            connection.close()
             
             QMessageBox.information(self, "Uğur", "Resept uğurla yadda saxlanıldı!")
             self.prescription_completed.emit()
