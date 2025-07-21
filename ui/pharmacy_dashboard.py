@@ -17,6 +17,8 @@ class PharmacyDashboard(QMainWindow):
         self.db = db
         self.init_ui()
         self.load_dashboard_data()
+        # İlk dəfə statistikləri yüklə
+        QTimer.singleShot(1000, self.refresh_stats)
         
     def init_ui(self):
         """Dashboard UI-ni hazırla"""
@@ -127,19 +129,16 @@ class PharmacyDashboard(QMainWindow):
         stats_layout = QGridLayout(stats_frame)
         stats_layout.setSpacing(20)
         
-        # Kartlar məlumatı
-        cards_data = [
-            ("Bu günkü satış", "0.00 ₼", "#4CAF50", "💰"),
-            ("Bu aylıq satış", "0.00 ₼", "#2196F3", "📊"),
-            ("BioScript-ə borc", f"{self.user_data.get('current_month_commission', 0):.2f} ₼", "#FF9800", "💳"),
-            ("Satış sayı", "0", "#9C27B0", "🛒")
-        ]
+        # Statistika kartları yaradıb saxla
+        self.today_card = self.create_stat_card("Bu günkü satış", "0.00 ₼", "#4CAF50", "💰")
+        self.month_card = self.create_stat_card("Bu aylıq satış", "0.00 ₼", "#2196F3", "📊")
+        self.debt_card = self.create_stat_card("BioScript-ə borc", "0.00 ₼", "#FF9800", "💳")
+        self.count_card = self.create_stat_card("Satış sayı", "0", "#9C27B0", "🛒")
         
-        for i, (title, value, color, icon) in enumerate(cards_data):
-            card = self.create_stat_card(title, value, color, icon)
-            row = i // 2
-            col = i % 2
-            stats_layout.addWidget(card, row, col)
+        stats_layout.addWidget(self.today_card, 0, 0)
+        stats_layout.addWidget(self.month_card, 0, 1)
+        stats_layout.addWidget(self.debt_card, 1, 0)
+        stats_layout.addWidget(self.count_card, 1, 1)
             
         main_layout.addWidget(stats_frame)
         
@@ -310,6 +309,12 @@ class PharmacyDashboard(QMainWindow):
         """)
         new_sale_button.clicked.connect(self.start_new_sale)
         
+        # Satış siyahısına klik event əlavə et
+        self.sales_list.itemClicked.connect(self.on_sale_clicked)
+        
+        # Satış məlumatlarını saxlamaq üçün
+        self.recent_sales_data = []
+        
         sale_layout.addWidget(sale_title)
         sale_layout.addWidget(new_sale_button)
         sale_layout.addStretch()
@@ -364,7 +369,7 @@ class PharmacyDashboard(QMainWindow):
                 LEFT JOIN medications m ON pi.medication_id = m.id
                 WHERE dl.pharmacy_id = %s
                 GROUP BY dl.id
-                ORDER BY dl.created_at DESC
+                ORDER BY dl.dispensed_at DESC
                 LIMIT 10
             """
             
@@ -447,15 +452,15 @@ class PharmacyDashboard(QMainWindow):
             
             # Bu ayın satış məlumatlarını al
             query = """
-                SELECT dl.created_at, p.name as patient_name, dl.total_price, 
+                SELECT dl.dispensed_at, p.name as patient_name, dl.total_price, 
                        dl.commission_amount, pr.diagnosis, pr.instructions
                 FROM dispensing_logs dl
                 JOIN patients p ON dl.patient_id = p.id
                 JOIN prescriptions pr ON dl.prescription_id = pr.id
                 WHERE dl.pharmacy_id = %s 
-                AND YEAR(dl.created_at) = YEAR(CURDATE()) 
-                AND MONTH(dl.created_at) = MONTH(CURDATE())
-                ORDER BY dl.created_at DESC
+                AND YEAR(dl.dispensed_at) = YEAR(CURDATE()) 
+                AND MONTH(dl.dispensed_at) = MONTH(CURDATE())
+                ORDER BY dl.dispensed_at DESC
             """
             
             sales_data = self.db.execute_query(query, (self.user_data['pharmacy_id'],))
@@ -475,7 +480,7 @@ class PharmacyDashboard(QMainWindow):
             
             # Məlumatları əlavə et
             for row, sale in enumerate(sales_data, 2):
-                ws.cell(row=row, column=1, value=sale['created_at'].strftime('%d.%m.%Y %H:%M'))
+                ws.cell(row=row, column=1, value=sale['dispensed_at'].strftime('%d.%m.%Y %H:%M'))
                 ws.cell(row=row, column=2, value=sale['patient_name'])
                 ws.cell(row=row, column=3, value=float(sale['total_price']))
                 ws.cell(row=row, column=4, value=float(sale['commission_amount']))
@@ -536,13 +541,61 @@ class PharmacyDashboard(QMainWindow):
         
         self.db.disconnect()
         
+    def refresh_stats(self):
+        """Statistikləri yenidən yüklə və kartları yenilə"""
+        if not self.db.connect():
+            return
+            
+        try:
+            # Bu günkü satış
+            today = date.today()
+            today_query = """
+                SELECT COUNT(*) as count, COALESCE(SUM(total_price), 0) as total
+                FROM dispensing_logs 
+                WHERE pharmacy_id = %s AND DATE(dispensed_at) = %s
+            """
+            today_result = self.db.execute_query(today_query, (self.user_data['pharmacy_id'], today))
+            today_sales = float(today_result[0]['total']) if today_result else 0.0
+            
+            # Bu aylıq satış
+            month_query = """
+                SELECT COUNT(*) as count, COALESCE(SUM(total_price), 0) as total
+                FROM dispensing_logs 
+                WHERE pharmacy_id = %s AND YEAR(dispensed_at) = %s AND MONTH(dispensed_at) = %s
+            """
+            month_result = self.db.execute_query(month_query, 
+                                              (self.user_data['pharmacy_id'], today.year, today.month))
+            month_sales = float(month_result[0]['total']) if month_result else 0.0
+            month_count = month_result[0]['count'] if month_result else 0
+            
+            # BioScript borcunu hesabla (3%)
+            bioscript_debt = month_sales * 0.03
+            
+            # Kartları yenilə
+            self.update_card_value(self.today_card, f"{today_sales:.2f} ₼")
+            self.update_card_value(self.month_card, f"{month_sales:.2f} ₼")
+            self.update_card_value(self.debt_card, f"{bioscript_debt:.2f} ₼")
+            self.update_card_value(self.count_card, str(month_count))
+            
+        except Exception as e:
+            print(f"Stats refresh xətası: {e}")
+        finally:
+            self.db.disconnect()
+    
+    def update_card_value(self, card, new_value):
+        """Kartdakı dəyəri yenilə"""
+        # Kartdakı value label-i tap və yenilə
+        layout = card.layout()
+        text_layout = layout.itemAt(1).layout()
+        value_label = text_layout.itemAt(1).widget()
+        value_label.setText(new_value)
+    
     def update_dashboard_ui(self, daily_result, month_result, recent_sales):
-        """Dashboard UI-ni yenilə"""
-        # Bu hissə statistika kartlarını yeniləyəcək
-        pass
-        
+        """Dashboard UI-ni yenilə"""        
         # Son satışları siyahıya əlavə et
         self.sales_list.clear()
+        self.recent_sales_data = recent_sales if recent_sales else []
+        
         if recent_sales:
             for sale in recent_sales:
                 item_text = f"{sale['patient_name']} - {sale['total_price']:.2f} ₼ ({sale['dispensed_at'].strftime('%d.%m.%Y %H:%M')})"
@@ -552,6 +605,17 @@ class PharmacyDashboard(QMainWindow):
             item = QListWidgetItem("Hələ ki satış əməliyyatı yoxdur")
             item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
             self.sales_list.addItem(item)
+    
+    def on_sale_clicked(self, item):
+        """Satış elementinə kliklədikdə təfərrüatları göstər"""
+        if not item or item.flags() & Qt.ItemIsSelectable == 0:
+            return
+            
+        # Seçilmiş satışın indeksini tap
+        row = self.sales_list.row(item)
+        if 0 <= row < len(self.recent_sales_data):
+            sale_data = self.recent_sales_data[row]
+            self.show_sale_details(sale_data)
             
     def keyPressEvent(self, event):
         """ESC ilə çıxış"""
