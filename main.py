@@ -6,6 +6,7 @@ BioScript - Tibbi Resept İdarəetmə Sistemi
 
 import sys
 import os
+from dotenv import load_dotenv
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                             QHBoxLayout, QLabel, QLineEdit, QPushButton, 
                             QTabWidget, QTableWidget, QTableWidgetItem,
@@ -14,6 +15,9 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                             QGroupBox, QSpinBox, QFormLayout)
 from PyQt5.QtCore import Qt, QDate, QTimer, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon, QPalette, QColor, QPixmap
+
+# .env faylını yüklə
+load_dotenv()
 
 from database.db_manager import DatabaseManager
 from ui.new_doctor_login import NewDoctorLoginWindow

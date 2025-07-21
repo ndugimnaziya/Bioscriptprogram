@@ -7,6 +7,10 @@ Həkim köməkçisi və resept analiz sistemi
 import os
 import json
 import google.generativeai as genai
+from dotenv import load_dotenv
+
+# .env faylını yüklə
+load_dotenv()
 
 class BioScriptAI:
     """BioScript üçün Gemini AI köməkçisi"""

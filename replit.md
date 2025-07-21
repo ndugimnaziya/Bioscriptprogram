@@ -48,6 +48,8 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - 2025-01-21: Arduino AS608 barmaq izi oxuyucu inteqrasiyası
 - 2025-01-21: Gemini AI həkim köməkçisi və chatbot
 - 2025-01-21: Resept yazma workflow sistemi (barmaq izi → tarixçə → yeni resept)
+- 2025-01-21: .env fayl konfiguratsiyası əlavə edildi GEMINI_API_KEY üçün
+- 2025-01-21: python-dotenv kitabxanası ilə environment variable idarəetməsi
 
 ## İstifadəçi Seçimləri
 - Dil: Azərbaycan dili (tam interfeys)
