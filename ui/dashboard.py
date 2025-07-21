@@ -15,7 +15,7 @@ from datetime import datetime, date, timedelta
 import threading
 
 from gemini_ai import BioScriptAI
-from fingerprint_reader import FingerprintSimulator
+# Köhnə fingerprint reader silindi
 
 class AnalyticsWidget(QWidget):
     """Analitika kartları"""
@@ -649,29 +649,62 @@ class BioScriptDashboard(QWidget):
         parent_layout.addStretch()
     
     def start_fingerprint_workflow(self):
-        """Yeni barmaq izi workflow başlatma"""
+        """Yeni streamlined workflow başlatma"""
         try:
-            from ui.new_prescription_workflow import FingerprintFirstDialog
+            from ui.new_streamlined_workflow import NewStreamlinedWorkflow
             from PyQt5.QtWidgets import QMessageBox
             
-            # Dialog yaradırıq
-            dialog = FingerprintFirstDialog(self.db_manager)
-            dialog.fingerprint_success.connect(self.on_fingerprint_success)
-            dialog.exec_()
+            # Yeni workflow yaradırıq
+            workflow = NewStreamlinedWorkflow(self.db_manager, self.doctor_data['id'])
+            workflow.workflow_completed.connect(self.on_workflow_completed)
+            
+            # Workflow-u ana pəncərəyə əlavə et
+            main_window = self.parent()
+            while main_window and not hasattr(main_window, 'central_stack'):
+                main_window = main_window.parent()
+                
+            if main_window and hasattr(main_window, 'central_stack'):
+                # Workflow tab əlavə et
+                main_window.central_stack.addTab(workflow, "📝 Yeni Resept")
+                main_window.central_stack.setCurrentWidget(workflow)
+                
+                # Workflow-u başlat
+                workflow.start_workflow()
+            else:
+                QMessageBox.warning(self, "Xəta", "Ana pəncərə tapılmadı")
             
         except Exception as e:
             from PyQt5.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Xəta", f"Workflow başlatma xətası: {e}")
             print(f"Workflow başlatma xətası: {e}")
     
-    def on_fingerprint_success(self, patient_data):
-        """Barmaq izi uğurlu oxunduqda"""
-        from PyQt5.QtWidgets import QMessageBox
-        self.set_ai_patient_context(patient_data, [])
-        # Dashboard-da pasiyent məlumatlarını göstər
-        QMessageBox.information(self, "Pasiyent Tapıldı", 
-                               f"Pasiyent: {patient_data['name']} {patient_data['surname']}\n"
-                               f"Telefon: {patient_data.get('phone', 'N/A')}")
+    def on_workflow_completed(self):
+        """Workflow tamamlandı, dashboard-a qayıt"""
+        try:
+            main_window = self.parent()
+            while main_window and not hasattr(main_window, 'central_stack'):
+                main_window = main_window.parent()
+                
+            if main_window and hasattr(main_window, 'central_stack'):
+                # Dashboard tab-ına qayıt
+                for i in range(main_window.central_stack.count()):
+                    if isinstance(main_window.central_stack.widget(i), BioScriptDashboard):
+                        main_window.central_stack.setCurrentIndex(i)
+                        break
+                        
+                # Workflow tab-ını sil
+                for i in range(main_window.central_stack.count()):
+                    widget = main_window.central_stack.widget(i)
+                    if hasattr(widget, 'workflow_completed'):
+                        main_window.central_stack.removeTab(i)
+                        widget.deleteLater()
+                        break
+                        
+                # Analitikani yenilə
+                self.analytics_widget.load_analytics()
+                
+        except Exception as e:
+            print(f"Workflow tamamlanma xətası: {e}")
     
     def set_ai_patient_context(self, patient_data, prescriptions):
         """AI-ya pasiyent kontekstini vermə"""

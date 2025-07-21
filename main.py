@@ -22,8 +22,7 @@ load_dotenv()
 from database.db_manager import DatabaseManager
 from ui.new_doctor_login import NewDoctorLoginWindow
 from ui.dashboard import BioScriptDashboard
-from ui.prescription_workflow import (FingerprintScanDialog, PatientHistoryWidget, 
-                                     NewPrescriptionWidget)
+from ui.new_streamlined_workflow import NewStreamlinedWorkflow
 from gemini_ai import BioScriptAI
 
 class BioScriptMainWindow(QMainWindow):
@@ -54,9 +53,6 @@ class BioScriptMainWindow(QMainWindow):
         
         # Dashboard
         self.dashboard = None
-        
-        # Resept workflow
-        self.prescription_workflow = None
         
         # Status bar
         self.statusBar().showMessage("Hazır")
@@ -218,7 +214,7 @@ class BioScriptMainWindow(QMainWindow):
         self.dashboard.view_prescriptions_requested.connect(self.view_prescriptions)
         
         # Dashboard-u stack-ə əlavə et
-        self.central_stack.addTab(self.dashboard, "Dashboard")
+        self.central_stack.addWidget(self.dashboard)
         self.central_stack.setCurrentWidget(self.dashboard)
         
         # Ana pəncərəni göstər
@@ -229,89 +225,10 @@ class BioScriptMainWindow(QMainWindow):
         self.statusBar().showMessage(f"Xoş gəlmisiniz, {doctor_name}")
     
     def start_new_prescription(self):
-        """Yeni resept yazma prosesini başlatma"""
-        # Barmaq izi oxuma dialoqu
-        fingerprint_dialog = FingerprintScanDialog(self.db_manager)
-        fingerprint_dialog.fingerprint_scanned.connect(self.on_patient_identified)
-        fingerprint_dialog.exec_()
-    
-    def on_patient_identified(self, patient_data):
-        """Pasiyent identifikasiya edildikdə"""
-        self.current_patient = patient_data
-        
-        # Pasiyent tarixçəsini al
-        prescriptions = self.db_manager.get_patient_prescriptions(patient_data['id'])
-        
-        # AI-ya kontekst ver
-        if self.dashboard and hasattr(self.dashboard, 'set_ai_patient_context'):
-            self.dashboard.set_ai_patient_context(patient_data, prescriptions)
-        
-        # Resept workflow pəncərəsini yarat
-        self.create_prescription_workflow(patient_data, prescriptions)
-    
-    def create_prescription_workflow(self, patient_data, prescriptions):
-        """Resept workflow yaratma"""
-        # Workflow widget-i yarat
-        workflow_widget = QWidget()
-        workflow_layout = QHBoxLayout(workflow_widget)
-        workflow_layout.setContentsMargins(0, 0, 0, 0)
-        workflow_layout.setSpacing(0)
-        
-        # Sol tərəf - Pasiyent tarixçəsi
-        patient_history = PatientHistoryWidget(self.db_manager)
-        patient_history.set_patient(patient_data)
-        
-        # Sağ tərəf - Yeni resept
-        ai_assistant = self.dashboard.ai_assistant if self.dashboard else None
-        new_prescription = NewPrescriptionWidget(self.db_manager, ai_assistant)
-        new_prescription.set_patient_and_doctor(patient_data, self.current_doctor)
-        new_prescription.prescription_saved.connect(self.on_prescription_saved)
-        
-        # Splitter
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.addWidget(patient_history)
-        splitter.addWidget(new_prescription)
-        splitter.setSizes([400, 600])
-        
-        workflow_layout.addWidget(splitter)
-        
-        # Navigation
-        nav_layout = QVBoxLayout()
-        
-        back_btn = QPushButton("← Dashboard-a Qayıt")
-        back_btn.clicked.connect(self.return_to_dashboard)
-        back_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #757575;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-                font-weight: bold;
-                margin: 10px;
-            }
-            QPushButton:hover {
-                background-color: #616161;
-            }
-        """)
-        
-        nav_layout.addWidget(back_btn)
-        nav_layout.addStretch()
-        
-        main_workflow_layout = QHBoxLayout()
-        main_workflow_layout.addLayout(nav_layout)
-        main_workflow_layout.addWidget(splitter)
-        
-        workflow_container = QWidget()
-        workflow_container.setLayout(main_workflow_layout)
-        
-        # Stack-ə əlavə et
-        self.central_stack.addWidget(workflow_container)
-        self.central_stack.setCurrentWidget(workflow_container)
-        
-        # Status yenilə
-        patient_name = patient_data.get('name', 'N/A')
-        self.statusBar().showMessage(f"Yeni resept yazılır - Pasiyent: {patient_name}")
+        """Yeni resept yazma prosesini başlatma - köhnə sistem"""
+        # Bu artıq istifadə olunmur, yeni streamlined workflow dashboard-dan başlayır
+        pass
+
         
     def on_prescription_saved(self, prescription_data):
         """Resept saxlanıldıqda"""
