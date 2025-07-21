@@ -23,7 +23,7 @@ class NewDoctorLoginWindow(QDialog):
     def init_ui(self):
         """Sadə interfeys yaratma"""
         self.setWindowTitle("BioScript - Həkim Girişi")
-        self.setFixedSize(520, 680)
+        self.setFixedSize(550, 720)
         self.setModal(True)
         
         # Pəncərəni mərkəzləşdir
@@ -34,8 +34,8 @@ class NewDoctorLoginWindow(QDialog):
         
         # Ana layout
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(40, 30, 40, 30)
-        main_layout.setSpacing(25)
+        main_layout.setContentsMargins(40, 25, 40, 25)
+        main_layout.setSpacing(20)
         
         # Logo
         self.create_logo_section(main_layout)
@@ -50,28 +50,30 @@ class NewDoctorLoginWindow(QDialog):
         """Logo bölməsi yaratma"""
         logo_frame = QFrame()
         logo_layout = QVBoxLayout(logo_frame)
-        logo_layout.setSpacing(25)
+        logo_layout.setSpacing(15)
         logo_layout.setAlignment(Qt.AlignCenter)
         
-        # Sadə mətn logosu - həmişə işləyir
-        logo_container = QFrame()
-        logo_container_layout = QHBoxLayout(logo_container)
-        logo_container_layout.setAlignment(Qt.AlignCenter)
-        logo_container_layout.setSpacing(15)
-        
-        # Logo simbol (dairəvi barmaq izi effekti)
-        logo_symbol = QLabel("⊛")
-        logo_symbol.setFont(QFont("Arial", 48, QFont.Bold))
-        logo_symbol.setStyleSheet("color: #1e88e5; background: transparent;")
-        logo_container_layout.addWidget(logo_symbol)
-        
-        # BioScript yazısı  
-        logo_text = QLabel("BioScript")
-        logo_text.setFont(QFont("Arial", 36, QFont.Bold))
-        logo_text.setStyleSheet("color: #1e88e5; background: transparent;")
-        logo_container_layout.addWidget(logo_text)
-        
-        logo_layout.addWidget(logo_container)
+        # Original BioScript logosu
+        try:
+            logo_label = QLabel()
+            pixmap = QPixmap("static/bioscript_logo_original.png")
+            if not pixmap.isNull():
+                # Logoyu uyğun ölçüyə gətir (400x160 maksimum)
+                scaled_pixmap = pixmap.scaled(400, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                logo_label.setPixmap(scaled_pixmap)
+                logo_label.setAlignment(Qt.AlignCenter)
+                logo_label.setStyleSheet("background: transparent;")
+                logo_layout.addWidget(logo_label)
+            else:
+                raise Exception("Logo yüklənmədi")
+        except Exception as e:
+            # Fallback - sadə mətn logosu
+            print(f"Logo yüklənmə xətası: {e}")
+            logo_text = QLabel("BioScript")
+            logo_text.setFont(QFont("Arial", 36, QFont.Bold))
+            logo_text.setAlignment(Qt.AlignCenter)
+            logo_text.setStyleSheet("color: #1e88e5; background: transparent;")
+            logo_layout.addWidget(logo_text)
         
         # Sloqan
         slogan = QLabel("Səhiyyə Barmaqlarınızın Ucundadır!")
@@ -148,15 +150,16 @@ class NewDoctorLoginWindow(QDialog):
         """Sadə stil tətbiq etmə"""
         self.setStyleSheet("""
             QDialog {
-                background: white;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #f8f9fa, stop:1 #e3f2fd);
             }
             
             QFrame#loginForm {
-                background: #f8f9fa;
+                background: rgba(255, 255, 255, 0.95);
                 border: 2px solid #e3f2fd;
                 border-radius: 15px;
-                padding: 20px;
-                margin-top: 10px;
+                padding: 25px;
+                margin-top: 15px;
             }
             
             QLineEdit {
@@ -166,31 +169,35 @@ class NewDoctorLoginWindow(QDialog):
                 font-size: 14px;
                 background: white;
                 margin-top: 5px;
-                margin-bottom: 5px;
+                margin-bottom: 10px;
             }
             
             QLineEdit:focus {
                 border-color: #1e88e5;
                 outline: none;
+                background: #f0f8ff;
             }
             
             QPushButton {
-                background: #1e88e5;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #1e88e5, stop:1 #1976d2);
                 color: white;
                 border: none;
                 border-radius: 8px;
                 padding: 15px;
                 font-size: 16px;
                 font-weight: bold;
-                margin-top: 10px;
+                margin-top: 15px;
             }
             
             QPushButton:hover {
-                background: #1976d2;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #1976d2, stop:1 #1565c0);
             }
             
             QPushButton:pressed {
-                background: #1565c0;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #1565c0, stop:1 #0d47a1);
             }
         """)
         

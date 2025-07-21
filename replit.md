@@ -45,10 +45,11 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - **Test Həkim**: huseyn/huseyn
 
 ## Son Dəyişikliklər
-- 2025-01-21: **YENİ** - Sadə və təmiz giriş səhifəsi yaradıldı
-- 2025-01-21: **YENİ** - BioScript logosu SVG formatında hazırlandı
+- 2025-01-21: **YENİ** - Original BioScript PNG logosu əlavə edildi
+- 2025-01-21: **YENİ** - Sadə və təmiz giriş səhifəsi yaradıldı  
 - 2025-01-21: **YENİ** - Köhnə mürəkkəb giriş səhifəsi tamamilə silindi
 - 2025-01-21: **YENİ** - Minimal dizayn: Logo + İstifadəçi adı + Şifrə + Giriş düyməsi
+- 2025-01-21: **YENİ** - Pəncərə ölçüsü 550x720px olaraq optimallaşdırıldı
 - 2025-01-21: Tamamilə yeni streamlined workflow sistemi yaradıldı
 - 2025-01-21: Köhnə barmaq izi sistemləri silindi və fake progress dialog yaradıldı
 - 2025-01-21: Yeni workflow: Fake barmaq izi oxuma → Pasiyent seçimi → AI təhlil → Resept yazma
@@ -76,6 +77,6 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - Dil: Azərbaycan dili (tam interfeys)
 - PyQt5 GUI framework (istəkli olaraq saxlanılması)
 - **YENİ**: Sadə və təmiz giriş səhifəsi (mürəkkəb dizaynlar silinib)
-- **YENİ**: BioScript SVG logosu istifadəsi
+- **YENİ**: Original BioScript PNG logosu istifadəsi
 - Tam ekran aplikasiya görünüşü
 - Mavi gradient dizayn teması
