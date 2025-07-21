@@ -266,12 +266,13 @@ class PatientHistoryAIWidget(QWidget):
             cursor = connection.cursor()
             
             query = """
-            SELECT r.id, r.şikayət, r.diaqnoz, r.dərmanlar, r.yaradılma_tarixi,
-                   h.ad as hekim_adi, h.soyad as hekim_soyadi
-            FROM reseptlər r
-            JOIN həkimlər h ON r.həkim_id = h.id
-            WHERE r.pasiyent_id = %s
-            ORDER BY r.yaradılma_tarixi DESC
+            SELECT p.id, p.complaint as şikayət, p.diagnosis as diaqnoz, 
+                   '' as dərmanlar, p.issued_at as yaradılma_tarixi,
+                   d.name as hekim_adi, d.surname as hekim_soyadi
+            FROM prescriptions p
+            JOIN doctors d ON p.doctor_id = d.id
+            WHERE p.patient_id = %s
+            ORDER BY p.issued_at DESC
             LIMIT 10
             """
             
@@ -414,21 +415,41 @@ class PatientHistoryAIWidget(QWidget):
             cursor = connection.cursor()
             
             # Resepti əlavə et
-            query = """
-            INSERT INTO reseptlər (pasiyent_id, həkim_id, şikayət, diaqnoz, dərmanlar, yaradılma_tarixi)
+            # İlk növbədə prescription yaradırıq
+            prescription_query = """
+            INSERT INTO prescriptions (patient_id, doctor_id, hospital_id, complaint, diagnosis, issued_at)
             VALUES (%s, %s, %s, %s, %s, %s)
             """
             
-            values = (
+            # Prescription əlavə et
+            prescription_values = (
                 self.patient_data['id'],
                 self.doctor_id,
+                6,  # Naxçıvan Dövlət Universitetinin Xəstəxanası
                 self.complaint_input.toPlainText().strip(),
                 self.diagnosis_input.text().strip(),
-                json.dumps(medications, ensure_ascii=False),
                 datetime.now()
             )
             
-            cursor.execute(query, values)
+            cursor.execute(prescription_query, prescription_values)
+            prescription_id = cursor.lastrowid
+            
+            # Hər dərman üçün prescription_items əlavə et
+            if medications:
+                item_query = """
+                INSERT INTO prescription_items (prescription_id, name, dosage, instructions)
+                VALUES (%s, %s, %s, %s)
+                """
+                
+                for med in medications:
+                    item_values = (
+                        prescription_id,
+                        med['ad'],
+                        med['dozaj'],
+                        f"{med['qaydalar']} - {med['müddət']}"
+                    )
+                    cursor.execute(item_query, item_values)
+            
             connection.commit()
             
             cursor.close()

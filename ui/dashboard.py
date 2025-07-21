@@ -666,7 +666,7 @@ class BioScriptDashboard(QWidget):
             if main_window and hasattr(main_window, 'central_stack'):
                 # Workflow tab əlavə et
                 main_window.central_stack.addTab(workflow, "📝 Yeni Resept")
-                main_window.central_stack.setCurrentWidget(workflow)
+                main_window.central_stack.setCurrentIndex(main_window.central_stack.count() - 1)
                 
                 # Workflow-u başlat
                 workflow.start_workflow()

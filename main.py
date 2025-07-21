@@ -214,7 +214,7 @@ class BioScriptMainWindow(QMainWindow):
         self.dashboard.view_prescriptions_requested.connect(self.view_prescriptions)
         
         # Dashboard-u stack-ə əlavə et
-        self.central_stack.addWidget(self.dashboard)
+        self.central_stack.addTab(self.dashboard, "Dashboard")
         self.central_stack.setCurrentWidget(self.dashboard)
         
         # Ana pəncərəni göstər

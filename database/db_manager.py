@@ -59,6 +59,10 @@ class DatabaseManager:
             print(f"Cədvəl yoxlama xətası: {e}")
             raise
     
+    def get_connection(self):
+        """Verilənlər bazası bağlantısını qaytarma"""
+        return self.connection
+    
     def insert_test_data(self):
         """Test məlumatları əlavə etmə"""
         try:

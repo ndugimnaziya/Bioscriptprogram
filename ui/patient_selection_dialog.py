@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
 from PyQt5.QtCore import Qt, pyqtSignal, QDate
 from PyQt5.QtGui import QFont
 from datetime import datetime, date
+import random
 
 class PatientSelectionDialog(QDialog):
     """Pasiyent seçim dialoqu"""
@@ -183,9 +184,10 @@ class PatientSelectionDialog(QDialog):
             cursor = connection.cursor()
             
             query = """
-            SELECT id, ad, soyad, doğum_tarixi, telefon, email, ünvan
-            FROM pasiyentlər 
-            ORDER BY ad, soyad
+            SELECT id, name as ad, fin_code as soyad, birth_date as doğum_tarixi, 
+                   phone as telefon, '' as email, address as ünvan
+            FROM patients 
+            ORDER BY name, fin_code
             """
             cursor.execute(query)
             patients = cursor.fetchall()
@@ -324,7 +326,7 @@ class NewPatientDialog(QDialog):
         self.ad_input.setPlaceholderText("Məsələn: Əhməd")
         
         self.soyad_input = QLineEdit()
-        self.soyad_input.setPlaceholderText("Məsələn: Məmmədov")
+        self.soyad_input.setPlaceholderText("Məsələn: 1234567")  # FIN kod
         
         self.dogum_date = QDateEdit()
         self.dogum_date.setDate(QDate.currentDate().addYears(-30))
@@ -365,11 +367,9 @@ class NewPatientDialog(QDialog):
         
         # Form əlavə et
         form_layout.addRow("📝 Ad *:", self.ad_input)
-        form_layout.addRow("📝 Soyad *:", self.soyad_input)
+        form_layout.addRow("📝 FIN Kod *:", self.soyad_input)  # FIN kod sahəsi
         form_layout.addRow("🎂 Doğum Tarixi:", self.dogum_date)
-        form_layout.addRow("👤 Cinsi:", self.cinsi_combo)
         form_layout.addRow("📞 Telefon:", self.telefon_input)
-        form_layout.addRow("📧 Email:", self.email_input)
         form_layout.addRow("🏠 Ünvan:", self.unvan_input)
         
         layout.addWidget(form_frame)
@@ -429,7 +429,7 @@ class NewPatientDialog(QDialog):
             return
             
         if not self.soyad_input.text().strip():
-            QMessageBox.warning(self, "Xəta", "Soyad sahəsi boş ola bilməz!")
+            QMessageBox.warning(self, "Xəta", "FIN kod sahəsi boş ola bilməz!")
             return
             
         try:
@@ -438,19 +438,20 @@ class NewPatientDialog(QDialog):
             
             # Pasiyenti əlavə et
             query = """
-            INSERT INTO pasiyentlər (ad, soyad, doğum_tarixi, cinsi, telefon, email, ünvan, yaradılma_tarixi)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO patients (id, name, fin_code, birth_date, phone, address)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """
             
+            # Yeni pasiyent ID yaradırıq
+            patient_id = f"PAT{random.randint(100, 999):03d}"
+            
             values = (
+                patient_id,
                 self.ad_input.text().strip(),
-                self.soyad_input.text().strip(),
+                self.soyad_input.text().strip(),  # fin_code kimi saxlanacaq
                 self.dogum_date.date().toPyDate(),
-                self.cinsi_combo.currentText(),
                 self.telefon_input.text().strip() or None,
-                self.email_input.text().strip() or None,
-                self.unvan_input.toPlainText().strip() or None,
-                datetime.now()
+                self.unvan_input.toPlainText().strip() or None
             )
             
             cursor.execute(query, values)

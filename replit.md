@@ -45,23 +45,21 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - **Test Həkim**: huseyn/huseyn
 
 ## Son Dəyişikliklər
-- 2025-01-21: Tamamilə yeni BioScript sistemi tamamlandı
+- 2025-01-21: Tamamilə yeni streamlined workflow sistemi yaradıldı
+- 2025-01-21: Köhnə barmaq izi sistemləri silindi və fake progress dialog yaradıldı
+- 2025-01-21: Yeni workflow: Fake barmaq izi oxuma → Pasiyent seçimi → AI təhlil → Resept yazma
+- 2025-01-21: Pasiyent seçim dialoqu və yeni pasiyent yaratma sistemi tamamlandı
+- 2025-01-21: AI təhlil ilə keçmiş reseptlərin analizi və tövsiyələr
+- 2025-01-21: Verilənlər bazası strukturu MySQL ingilis dilində düzəldildi
 - 2025-01-21: Modern tam ekran giriş sistemi (login: huseyn/huseyn)
 - 2025-01-21: Dashboard analitika və statistika sistemi
-- 2025-01-21: Arduino AS608 barmaq izi oxuyucu inteqrasiyası
 - 2025-01-21: Gemini AI həkim köməkçisi və chatbot
-- 2025-01-21: Resept yazma workflow sistemi (barmaq izi → tarixçə → yeni resept)
 - 2025-01-21: .env fayl konfiguratsiyası əlavə edildi GEMINI_API_KEY üçün
 - 2025-01-21: python-dotenv kitabxanası ilə environment variable idarəetməsi
 - 2025-01-21: Professional UI dizayn yeniləməsi - modern gradient rənglər
 - 2025-01-21: Segoe UI font və yaxşılaşdırılmış button dizaynları
-- 2025-01-21: Tam funksional Arduino AS608 kodu və dokumentasiya
-- 2025-01-21: Monday ingilis dilindən Azərbaycan dilinə tərcümə edildi
-- 2025-01-21: AI mesajlar HTML formatında düzgün render olunur və sıra düzəldildi
-- 2025-01-21: Düymələrin eni artırıldı və mətn kəsilməsi problemi həll edildi
-- 2025-01-21: Barmaq izi oxuma dialogu professional dizaynda yeniləndi
-- 2025-01-21: Yeni workflow sistemi: Barmaq izi → Pasiyent tarixçəsi → Yeni resept
-- 2025-01-21: Resept tarixçəsi düyməsi silindi, yalnız fingerprint-first workflow qaldı
+- 2025-01-21: AI mesajlar HTML formatında düzgün render olunur
+- 2025-01-21: Tam Azərbaycan dili interfeys və mesajları
 
 ## İstifadəçi Seçimləri
 - Dil: Azərbaycan dili (tam interfeys)

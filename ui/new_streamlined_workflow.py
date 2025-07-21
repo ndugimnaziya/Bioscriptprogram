@@ -33,6 +33,10 @@ class NewStreamlinedWorkflow(QWidget):
         self.stack = QStackedWidget()
         layout.addWidget(self.stack)
         
+        # Boş başlanğıc widget
+        empty_widget = QWidget()
+        self.stack.addWidget(empty_widget)
+        
     def start_workflow(self):
         """Workflow-u başlat"""
         # 1. Fake barmaq izi oxuma
