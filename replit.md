@@ -65,6 +65,9 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - 2025-01-21: AI mesajları düzgün scroll ilə altda göstərilir
 - 2025-01-21: Professional login ekranı - Azərbaycan Səhiyyə Nazirliyi teması
 - 2025-01-21: Dashboard header daha professional və informativ edildi
+- 2025-01-21: Box-shadow xətaları düzəldildi və modern kartlar yaradıldı
+- 2025-01-21: Chat metodları handle_chat_message olaraq dəyişdirildi
+- 2025-01-21: Tam ekran resept yazma və 3-bölməli AI chat sistemi
 
 ## İstifadəçi Seçimləri
 - Dil: Azərbaycan dili (tam interfeys)

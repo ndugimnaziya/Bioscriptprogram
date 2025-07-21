@@ -350,10 +350,10 @@ class PatientHistoryAIWidget(QWidget):
         # Chat input
         self.chat_input = QLineEdit()
         self.chat_input.setPlaceholderText("AI həkimə sualınızı yazın...")
-        self.chat_input.returnPressed.connect(self.send_chat_message)
+        self.chat_input.returnPressed.connect(self.handle_chat_message)
         
         send_chat_btn = QPushButton("Göndər")
-        send_chat_btn.clicked.connect(self.send_chat_message)
+        send_chat_btn.clicked.connect(self.handle_chat_message)
         send_chat_btn.setStyleSheet("""
             QPushButton {
                 background: #4caf50;
@@ -626,7 +626,7 @@ class PatientHistoryAIWidget(QWidget):
             
             QMessageBox.information(self, "Resept Detalları", details)
     
-    def send_chat_message(self):
+    def handle_chat_message(self):
         """Chat mesajı göndər"""
         message = self.chat_input.text().strip()
         if not message:

@@ -99,44 +99,62 @@ class AnalyticsWidget(QWidget):
         layout.addWidget(recent_frame, 1, 0, 1, 4)
         
     def create_stat_card(self, title, value, unit, color):
-        """Statistika kartı yaratma"""
+        """Modern statistika kartı yaratma"""
         card = QFrame()
-        card.setFixedSize(220, 140)
+        card.setFixedSize(200, 120)
         card.setStyleSheet(f"""
             QFrame {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                                          stop:0 {color}, stop:1 {color}dd);
-                border-radius: 15px;
-                border: none;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                margin: 5px;
+                background: {color};
+                border: 2px solid {color};
+                border-radius: 12px;
+                margin: 8px;
             }}
             QFrame:hover {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                                          stop:0 {color}ee, stop:1 {color}ff);
+                border: 2px solid #ffffff;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 {color}, stop:1 {color}99);
             }}
         """)
         
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(15, 15, 15, 15)
+        layout.setContentsMargins(15, 10, 15, 10)
+        layout.setSpacing(2)
+        
+        # İkon və başlıq
+        title_layout = QHBoxLayout()
+        icon_map = {
+            "Bu Gün": "📅",
+            "Bu Ay": "📊", 
+            "Ümumi": "📈",
+            "Pasiyentlər": "👥"
+        }
+        
+        icon_label = QLabel(icon_map.get(title, "📋"))
+        icon_label.setFont(QFont("Segoe UI", 16))
+        icon_label.setStyleSheet("color: white;")
         
         title_label = QLabel(title)
-        title_label.setFont(QFont("Segoe UI", 13, QFont.Bold))
-        title_label.setStyleSheet("color: rgba(255,255,255,0.9); margin-bottom: 5px;")
+        title_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        title_label.setStyleSheet("color: white;")
         
+        title_layout.addWidget(icon_label)
+        title_layout.addWidget(title_label)
+        title_layout.addStretch()
+        
+        # Dəyər
         value_label = QLabel(value)
-        value_label.setFont(QFont("Segoe UI", 36, QFont.Bold))
-        value_label.setStyleSheet("color: white; margin: 10px 0;")
+        value_label.setFont(QFont("Segoe UI", 28, QFont.Bold))
+        value_label.setStyleSheet("color: white;")
         value_label.setAlignment(Qt.AlignCenter)
-        # Kartı yeniləmək üçün value label-ı saxla
         card.value_label = value_label
         
+        # Vahid
         unit_label = QLabel(unit)
-        unit_label.setFont(QFont("Segoe UI", 11))
+        unit_label.setFont(QFont("Segoe UI", 10))
         unit_label.setStyleSheet("color: rgba(255,255,255,0.8);")
         unit_label.setAlignment(Qt.AlignCenter)
         
-        layout.addWidget(title_label)
+        layout.addLayout(title_layout)
         layout.addWidget(value_label)
         layout.addWidget(unit_label)
         
