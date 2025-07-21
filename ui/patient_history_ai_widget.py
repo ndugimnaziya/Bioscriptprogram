@@ -425,13 +425,25 @@ class PatientHistoryAIWidget(QWidget):
                 cursor.execute(meds_query, (presc_id,))
                 meds_data = cursor.fetchall()
                 
-                # Dərmanları düzgün formatda yığ
+                # Dərmanları düzgün formatda yığ - müddət ayrı çək
                 meds = []
                 for med in meds_data:
+                    instructions = med['instructions'] or 'Qeyd edilməyib'
+                    muddet = 'Qeyd edilməyib'
+                    qaydalar = instructions
+                    
+                    # Instructions sahəsindən müddəti ayrı et (format: "qaydalar - müddət")
+                    if ' - ' in instructions:
+                        parts = instructions.rsplit(' - ', 1)  # Son dəfə böl
+                        if len(parts) == 2:
+                            qaydalar = parts[0].strip()
+                            muddet = parts[1].strip()
+                    
                     meds.append({
                         'ad': med['name'] or 'Bilinməyən',
                         'dozaj': med['dosage'] or 'Qeyd edilməyib',
-                        'qaydalar': med['instructions'] or 'Qeyd edilməyib'
+                        'qaydalar': qaydalar,
+                        'müddət': muddet
                     })
                 
                 # Tarixi düzgün format et

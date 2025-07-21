@@ -45,7 +45,9 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - **Test Həkim**: huseyn/huseyn
 
 ## Son Dəyişikliklər
-- 2025-01-21: **SON YENİLİK** - Yeni pasiyent qeydiyyatı MySQL strukturuna uyğunlaşdırıldı
+- 2025-01-21: **SON YENİLİK** - Resept detallarında müddət məlumatının göstərilməməsi problemi həll edildi
+- 2025-01-21: **YENİ** - Instructions sahəsindən müddət məlumatı ayrı parsing edilir (" - " separator ilə)
+- 2025-01-21: **YENİ** - Yeni pasiyent qeydiyyatı MySQL strukturuna uyğunlaşdırıldı
 - 2025-01-21: **YENİ** - NewPatientDialog form sahələri MySQL cədvəlinə uyğun düzəldildi (name, fin_code, birth_date, phone, address)
 - 2025-01-21: **YENİ** - create_patient metodu MySQL strukturuna uyğun yeniləndi
 - 2025-01-21: **YENİ** - Prescription_items cədvəlindən dərman məlumatları düzgün alınması həll edildi
