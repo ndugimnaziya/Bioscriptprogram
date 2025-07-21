@@ -17,6 +17,7 @@ from datetime import datetime, date
 import threading
 
 from fingerprint_reader import FingerprintSimulator
+from real_fingerprint import RealFingerprintReader
 from gemini_ai import BioScriptAI
 
 class FingerprintScanDialog(QDialog):
@@ -27,7 +28,15 @@ class FingerprintScanDialog(QDialog):
     def __init__(self, db_manager):
         super().__init__()
         self.db_manager = db_manager
-        self.fingerprint_reader = FingerprintSimulator()
+        # Real barmaq izi oxuyucu istifadə etməyə çalış
+        try:
+            self.fingerprint_reader = RealFingerprintReader()
+            if not self.fingerprint_reader.connect():
+                print("⚠️ Real oxuyucu bağlanmadı, simulatora keçilir")
+                self.fingerprint_reader = FingerprintSimulator()
+        except Exception as e:
+            print(f"Real oxuyucu xətası: {e}")
+            self.fingerprint_reader = FingerprintSimulator()
         self.init_ui()
         
     def init_ui(self):

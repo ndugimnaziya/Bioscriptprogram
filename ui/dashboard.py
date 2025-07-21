@@ -33,21 +33,18 @@ class AnalyticsWidget(QWidget):
         layout.setSpacing(20)
         layout.setContentsMargins(20, 20, 20, 20)
         
-        # Bugünkü reseptlər
-        today_card = self.create_stat_card("Bu gün", "0", "resept", "#4caf50")
-        layout.addWidget(today_card, 0, 0)
+        # Statistika kartları - əvvəlcə yaradılır, sonra yenilənir
+        self.today_card = self.create_stat_card("Bu gün", "0", "resept", "#4caf50")
+        layout.addWidget(self.today_card, 0, 0)
         
-        # Bu ay
-        month_card = self.create_stat_card("Bu ay", "0", "resept", "#2196f3")
-        layout.addWidget(month_card, 0, 1)
+        self.month_card = self.create_stat_card("Bu ay", "0", "resept", "#2196f3")
+        layout.addWidget(self.month_card, 0, 1)
         
-        # Ümumi
-        total_card = self.create_stat_card("Ümumi", "0", "resept", "#ff9800")
-        layout.addWidget(total_card, 0, 2)
+        self.total_card = self.create_stat_card("Ümumi", "0", "resept", "#ff9800")
+        layout.addWidget(self.total_card, 0, 2)
         
-        # Pasiyent sayı
-        patients_card = self.create_stat_card("Pasiyentlər", "0", "nəfər", "#9c27b0")
-        layout.addWidget(patients_card, 0, 3)
+        self.patients_card = self.create_stat_card("Pasiyentlər", "0", "nəfər", "#9c27b0")
+        layout.addWidget(self.patients_card, 0, 3)
         
         # Son reseptlər
         recent_frame = QGroupBox("Son Reseptlər")
@@ -131,6 +128,8 @@ class AnalyticsWidget(QWidget):
         value_label.setFont(QFont("Segoe UI", 36, QFont.Bold))
         value_label.setStyleSheet("color: white; margin: 10px 0;")
         value_label.setAlignment(Qt.AlignCenter)
+        # Kartı yeniləmək üçün value label-ı saxla
+        card.value_label = value_label
         
         unit_label = QLabel(unit)
         unit_label.setFont(QFont("Segoe UI", 11))
@@ -173,13 +172,16 @@ class AnalyticsWidget(QWidget):
     
     def update_stat_cards(self, today_stats, month_stats, total_stats):
         """Statistika kartlarını yeniləmə"""
-        # İlk card-ın value label-ını tapıb yenilə
-        # Bu daha mürəkkəb implementation tələb edir
-        # Sadəlik üçün print edəcək
-        print(f"Bu gün: {today_stats.get('total_prescriptions', 0)}")
-        print(f"Bu ay: {month_stats.get('total_prescriptions', 0)}")
-        print(f"Ümumi: {total_stats.get('total_prescriptions', 0)}")
-        print(f"Pasiyentlər: {total_stats.get('unique_patients', 0)}")
+        try:
+            # Kartlardakı dəyərləri yenilə
+            self.today_card.value_label.setText(str(today_stats.get('total_prescriptions', 0)))
+            self.month_card.value_label.setText(str(month_stats.get('total_prescriptions', 0)))
+            self.total_card.value_label.setText(str(total_stats.get('total_prescriptions', 0)))
+            self.patients_card.value_label.setText(str(total_stats.get('unique_patients', 0)))
+            
+            print(f"Analitika yeniləndi - Bu gün: {today_stats.get('total_prescriptions', 0)}")
+        except Exception as e:
+            print(f"Kartları yeniləmə xətası: {e}")
     
     def load_recent_prescriptions(self):
         """Son reseptləri yükləmə"""
@@ -223,7 +225,30 @@ class AIAssistantWidget(QWidget):
     def init_ui(self):
         """AI köməkçi UI"""
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setContentsMargins(20, 20, 20, 20)
+        
+        # BioScript logosu əlavə et
+        logo_label = QLabel()
+        try:
+            from PyQt5.QtGui import QPixmap
+            pixmap = QPixmap("./static/bioscript_logo.png")
+            if not pixmap.isNull():
+                # Loqonu uyğun ölçüyə gətir
+                scaled_pixmap = pixmap.scaled(300, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                logo_label.setPixmap(scaled_pixmap)
+                logo_label.setAlignment(Qt.AlignCenter)
+                logo_label.setStyleSheet("margin: 10px 0; background: transparent;")
+                layout.addWidget(logo_label)
+            else:
+                raise Exception("Logo faylı tapılmadı")
+        except Exception as e:
+            print(f"Logo yükləmə xətası: {e}")
+            # Logo yoxdursa, mətn əlavə et
+            logo_text = QLabel("🧬 BioScript")
+            logo_text.setFont(QFont("Segoe UI", 24, QFont.Bold))
+            logo_text.setAlignment(Qt.AlignCenter)
+            logo_text.setStyleSheet("color: #1565c0; margin: 15px 0;")
+            layout.addWidget(logo_text)
         layout.setSpacing(10)
         
         # Başlıq
@@ -232,16 +257,19 @@ class AIAssistantWidget(QWidget):
         title.setStyleSheet("color: #1e88e5; margin-bottom: 10px;")
         layout.addWidget(title)
         
-        # Söhbət tarixi
+        # Söhbət tarixi - HTML dəstəyi ilə
         self.chat_history = QTextEdit()
         self.chat_history.setReadOnly(True)
         self.chat_history.setMaximumHeight(300)
+        self.chat_history.setHtml("")  # HTML formatında başlat
         self.chat_history.setStyleSheet("""
             QTextEdit {
                 border: 2px solid #e3f2fd;
                 border-radius: 8px;
                 background-color: #fafafa;
                 padding: 10px;
+                font-family: 'Segoe UI';
+                font-size: 12px;
             }
         """)
         layout.addWidget(self.chat_history)
@@ -274,8 +302,16 @@ class AIAssistantWidget(QWidget):
         quick_buttons_layout.addWidget(suggest_btn)
         layout.addLayout(quick_buttons_layout)
         
-        # Xoş gəldin mesajı
-        self.add_ai_message("Salam! Mən sizin AI həkim köməkçinizəm. Sizə necə kömək edə bilərəm?")
+        # Xoş gəldin mesajı - HTML formatında
+        welcome_msg = "Salam! Mən sizin <strong>AI həkim köməkçinizəm</strong>. Sizə necə kömək edə bilərəm?"
+        self.chat_history.setHtml(f"""
+        <div style='margin: 10px 0; text-align: left;'>
+            <div style='background: #f5f5f5; color: #333; border-radius: 15px; padding: 12px; display: inline-block; max-width: 70%; border: 1px solid #e0e0e0;'>
+                {welcome_msg}
+            </div>
+            <div style='color: #666; font-size: 10px; margin-top: 5px;'>{datetime.now().strftime("%H:%M")}</div>
+        </div>
+        """)
         
     def set_patient_context(self, patient_data, prescriptions):
         """Pasiyent kontekstini təyin etmə"""
@@ -361,26 +397,55 @@ class AIAssistantWidget(QWidget):
         current_time = datetime.now().strftime("%H:%M")
         formatted_message = f"""
         <div style='margin: 10px 0; text-align: right;'>
-            <div style='background: #1e88e5; color: white; border-radius: 15px; padding: 10px; display: inline-block; max-width: 70%;'>
-                {message}
+            <div style='background: #1e88e5; color: white; border-radius: 15px; padding: 12px; display: inline-block; max-width: 70%;'>
+                {self.format_message_text(message)}
             </div>
-            <div style='color: #666; font-size: 10px; margin-top: 5px;'>{current_time}</div>
+            <div style='color: #666; font-size: 10px; margin-top: 5px; text-align: right;'>{current_time}</div>
         </div>
         """
-        self.chat_history.append(formatted_message)
+        self.chat_history.insertHtml(formatted_message)
+        self.chat_history.verticalScrollBar().setValue(
+            self.chat_history.verticalScrollBar().maximum()
+        )
         
     def add_ai_message(self, message):
         """AI mesajı əlavə etmə"""
         current_time = datetime.now().strftime("%H:%M")
         formatted_message = f"""
         <div style='margin: 10px 0; text-align: left;'>
-            <div style='background: #f5f5f5; color: #333; border-radius: 15px; padding: 10px; display: inline-block; max-width: 70%; border: 1px solid #e0e0e0;'>
-                {message}
+            <div style='background: #f5f5f5; color: #333; border-radius: 15px; padding: 12px; display: inline-block; max-width: 70%; border: 1px solid #e0e0e0;'>
+                {self.format_message_text(message)}
             </div>
             <div style='color: #666; font-size: 10px; margin-top: 5px;'>{current_time}</div>
         </div>
         """
-        self.chat_history.append(formatted_message)
+        self.chat_history.insertHtml(formatted_message)
+        self.chat_history.verticalScrollBar().setValue(
+            self.chat_history.verticalScrollBar().maximum()
+        )
+    
+    def format_message_text(self, text):
+        """Mətni HTML formatına çevirmək - AI markdown-ını düzgün render et"""
+        if not text:
+            return ""
+        
+        # Markdown bold **text** -> <strong>text</strong>
+        import re
+        text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', text)
+        
+        # Markdown italic *text* -> <em>text</em>
+        text = re.sub(r'\*(.*?)\*', r'<em>\1</em>', text)
+        
+        # Sətir sonları
+        text = text.replace('\n', '<br>')
+        
+        # Dərman adları və dozajlar üçün rəng
+        text = re.sub(r'(\d+\s*mg|\d+\s*ml|\d+\s*qram)', r'<span style="color: #ff5722; font-weight: bold;">\1</span>', text)
+        
+        # Diaqnoz və xəstəlik adları
+        text = re.sub(r'(diaqnoz|xəstəlik|sindrom|infeksiya)', r'<span style="color: #2196f3; font-weight: bold;">\1</span>', text, flags=re.IGNORECASE)
+        
+        return text
 
 class BioScriptDashboard(QWidget):
     """Əsas dashboard"""
@@ -550,6 +615,7 @@ class BioScriptDashboard(QWidget):
         """)
         view_prescriptions_btn.clicked.connect(self.view_prescriptions_requested.emit)
         
+        buttons_layout.addStretch()
         buttons_layout.addWidget(new_prescription_btn)
         buttons_layout.addWidget(view_prescriptions_btn)
         buttons_layout.addStretch()
