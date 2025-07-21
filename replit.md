@@ -45,7 +45,10 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - **Test Həkim**: huseyn/huseyn
 
 ## Son Dəyişikliklər
-- 2025-01-21: **SON YENİLİK** - Prescription_items cədvəlindən dərman məlumatları düzgün alınması həll edildi
+- 2025-01-21: **SON YENİLİK** - Yeni pasiyent qeydiyyatı MySQL strukturuna uyğunlaşdırıldı
+- 2025-01-21: **YENİ** - NewPatientDialog form sahələri MySQL cədvəlinə uyğun düzəldildi (name, fin_code, birth_date, phone, address)
+- 2025-01-21: **YENİ** - create_patient metodu MySQL strukturuna uyğun yeniləndi
+- 2025-01-21: **YENİ** - Prescription_items cədvəlindən dərman məlumatları düzgün alınması həll edildi
 - 2025-01-21: **YENİ** - load_patient_history funksiyasında JOIN query ilə dərmanlar alınır
 - 2025-01-21: **YENİ** - Barmaq izi oxuma dialoqu düzgün spacing və 600x450px tam ekran edildi
 - 2025-01-21: **YENİ** - Hər element fixed height-la ayrı-ayrı düzəldildi (başlıq:80px, ikon:180px, status:70px)

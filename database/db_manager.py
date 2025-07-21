@@ -137,29 +137,27 @@ class DatabaseManager:
             return None
     
     def create_patient(self, patient_data):
-        """Yeni pasiyent yaratma"""
+        """Yeni pasiyent yaratma - MySQL strukturuna uyğun"""
         try:
+            # MySQL patients cədvəli: id, name, fin_code, birth_date, phone, address
             query = """
             INSERT INTO patients 
-            (id, name, surname, birth_date, gender, phone, address, fingerprint_id, registered_at, is_active)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 1)
+            (id, name, fin_code, birth_date, phone, address, registration_date, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW(), NOW())
             """
             
             self.cursor.execute(query, (
                 patient_data['id'],
                 patient_data['name'],
-                patient_data['surname'], 
+                patient_data['fin_code'], 
                 patient_data['birth_date'],
-                patient_data['gender'],
                 patient_data['phone'],
-                patient_data['address'],
-                patient_data['fingerprint_id'],
-                patient_data['registered_at']
+                patient_data['address']
             ))
             
             self.connection.commit()
             print(f"Yeni pasiyent yaradıldı: {patient_data['id']}")
-            return True
+            return patient_data['id']
             
         except Error as e:
             print(f"Pasiyent yaratma xətası: {e}")

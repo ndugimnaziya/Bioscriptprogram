@@ -330,26 +330,22 @@ class NewPatientDialog(QDialog):
         form_layout = QFormLayout(form_frame)
         form_layout.setSpacing(15)
         
-        # Form sahələri
+        # Form sahələri - MySQL strukturuna uyğun
         self.ad_input = QLineEdit()
-        self.ad_input.setPlaceholderText("Məsələn: Əhməd")
+        self.ad_input.setPlaceholderText("Məsələn: Əhməd Əliyev")
         
-        self.soyad_input = QLineEdit()
-        self.soyad_input.setPlaceholderText("Məsələn: 1234567")  # FIN kod
+        self.fin_kod_input = QLineEdit()
+        self.fin_kod_input.setPlaceholderText("Məsələn: 1234567")
+        self.fin_kod_input.setMaxLength(7)  # FIN kod 7 rəqəm
         
         self.dogum_date = QDateEdit()
         self.dogum_date.setDate(QDate.currentDate().addYears(-30))
         self.dogum_date.setDisplayFormat("dd.MM.yyyy")
         self.dogum_date.setCalendarPopup(True)
         
-        self.cinsi_combo = QComboBox()
-        self.cinsi_combo.addItems(["Kişi", "Qadın", "Digər"])
-        
         self.telefon_input = QLineEdit()
-        self.telefon_input.setPlaceholderText("Məsələn: +994 50 123 45 67")
-        
-        self.email_input = QLineEdit()
-        self.email_input.setPlaceholderText("Məsələn: ahmed@example.com")
+        self.telefon_input.setPlaceholderText("Məsələn: +994501234567")
+        self.telefon_input.setMaxLength(15)  # Phone sahəsi max 15 simvol
         
         self.unvan_input = QTextEdit()
         self.unvan_input.setPlaceholderText("Tam ünvan daxil edin...")
@@ -369,14 +365,13 @@ class NewPatientDialog(QDialog):
             }
         """
         
-        for widget in [self.ad_input, self.soyad_input, self.dogum_date, 
-                      self.cinsi_combo, self.telefon_input, self.email_input, 
-                      self.unvan_input]:
+        for widget in [self.ad_input, self.fin_kod_input, self.dogum_date, 
+                      self.telefon_input, self.unvan_input]:
             widget.setStyleSheet(input_style)
         
-        # Form əlavə et
-        form_layout.addRow("📝 Ad *:", self.ad_input)
-        form_layout.addRow("📝 FIN Kod *:", self.soyad_input)  # FIN kod sahəsi
+        # Form əlavə et - MySQL strukturuna uyğun
+        form_layout.addRow("📝 Ad Soyad *:", self.ad_input)
+        form_layout.addRow("🆔 FIN Kod *:", self.fin_kod_input)
         form_layout.addRow("🎂 Doğum Tarixi:", self.dogum_date)
         form_layout.addRow("📞 Telefon:", self.telefon_input)
         form_layout.addRow("🏠 Ünvan:", self.unvan_input)
@@ -437,7 +432,7 @@ class NewPatientDialog(QDialog):
             QMessageBox.warning(self, "Xəta", "Ad sahəsi boş ola bilməz!")
             return
             
-        if not self.soyad_input.text().strip():
+        if not self.fin_kod_input.text().strip():
             QMessageBox.warning(self, "Xəta", "FIN kod sahəsi boş ola bilməz!")
             return
             
@@ -461,7 +456,7 @@ class NewPatientDialog(QDialog):
             values = (
                 patient_id,
                 self.ad_input.text().strip(),
-                self.soyad_input.text().strip(),  # fin_code kimi saxlanacaq
+                self.fin_kod_input.text().strip(),  # fin_code sahəsi
                 self.dogum_date.date().toPyDate(),
                 self.telefon_input.text().strip() or None,
                 self.unvan_input.toPlainText().strip() or None
