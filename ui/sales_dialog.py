@@ -290,6 +290,9 @@ class SalesDialog(QDialog):
         # Satışı bazaya yaz
         if self.save_sale():
             QMessageBox.information(self, "Uğur", f"Satış uğurla tamamlandı!\nYekun: {self.total_price:.2f} ₼")
+            # Dashboard-ı yenilə
+            if hasattr(self.parent(), 'refresh_stats'):
+                self.parent().refresh_stats()
             self.accept()
         else:
             QMessageBox.critical(self, "Xəta", "Satış yadda saxlanarkən xəta yarandı!")

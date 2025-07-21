@@ -86,7 +86,7 @@ class PharmacyLoginWindow(QMainWindow):
         gradient = QLinearGradient(0, 0, 0, 1)
         gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
         gradient.setColorAt(0, QColor(0, 188, 212))   # BioScript mavi 
-        gradient.setColorAt(1, QColor(0, 150, 180))   # Açıq BioScript mavi (logo üçün)
+        gradient.setColorAt(1, QColor(200, 230, 240))   # Çox açıq mavi (logo üçün)
         palette.setBrush(QPalette.Window, QBrush(gradient))
         self.setPalette(palette)
         
@@ -97,10 +97,11 @@ class PharmacyLoginWindow(QMainWindow):
         form_widget.setFixedSize(450, 350)
         form_widget.setStyleSheet("""
             QWidget {
-                background: rgba(255, 255, 255, 0.95);
+                background: rgba(255, 255, 255, 0.98);
                 border-radius: 15px;
                 padding: 30px;
-                border: 2px solid rgba(255, 255, 255, 0.3);
+                border: 2px solid rgba(255, 255, 255, 0.5);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             }
         """)
         

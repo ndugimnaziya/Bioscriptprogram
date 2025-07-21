@@ -3,7 +3,7 @@
 
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                             QLabel, QPushButton, QFrame, QScrollArea, QListWidget,
-                            QListWidgetItem, QGridLayout)
+                            QListWidgetItem, QGridLayout, QDialog, QMessageBox)
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont, QPalette, QBrush, QLinearGradient, QColor
 from datetime import datetime, date
@@ -240,9 +240,26 @@ class PharmacyDashboard(QMainWindow):
             }
         """)
         self.sales_list.setAlternatingRowColors(True)
+        self.sales_list.itemClicked.connect(self.show_sale_details)
+        
+        # Excel export düyməsi
+        export_button = QPushButton("📊 Excel-ə Export Et")
+        export_button.setFont(QFont("Segoe UI", 10))
+        export_button.setStyleSheet("""
+            QPushButton {
+                background: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 8px 16px;
+            }
+            QPushButton:hover { background: #45a049; }
+        """)
+        export_button.clicked.connect(self.export_to_excel)
         
         sales_layout.addWidget(sales_title)
         sales_layout.addWidget(self.sales_list)
+        sales_layout.addWidget(export_button)
         
         bottom_layout.addWidget(sales_frame, 2)
         
@@ -299,9 +316,17 @@ class PharmacyDashboard(QMainWindow):
         
         bottom_layout.addWidget(sale_frame)
         
+    def refresh_stats(self):
+        """Statistikləri yenilə və UI-ni güncəllə"""
+        self.load_stats()
+        self.update_stats_display()
+        self.load_recent_sales()
+        
     def start_new_sale(self):
         """Yeni satış prosesini başlat"""
-        # Əvvəlcə barmaq izi oxuma dialoqu
+        from ui.fingerprint_scan import FingerprintScanDialog
+        
+        # Əvvəlcə barmaq izi oxuma dialoqu  
         fingerprint_dialog = FingerprintScanDialog(self)
         if fingerprint_dialog.exec_() == fingerprint_dialog.Accepted:
             # Aktiv reseptləri göstər
@@ -309,11 +334,168 @@ class PharmacyDashboard(QMainWindow):
             
     def show_sales_dialog(self):
         """Satış dialoqunu göstər"""
-        sales_dialog = SalesDialog(self.user_data, self.db, self)
-        sales_dialog.exec_()
+        from ui.sales_dialog import SalesDialog
         
-        # Dialog bağlandıqdan sonra məlumatları yenilə
-        self.load_dashboard_data()
+        sales_dialog = SalesDialog(self.user_data, self.db, self)
+        if sales_dialog.exec_() == QDialog.Accepted:
+            # Satış tamamlandı, statistikləri yenilə
+            self.refresh_stats()
+            
+    def show_sale_details(self, item):
+        """Satış təfərrüatlarını göstər"""
+        if not item or item.flags() & Qt.ItemIsSelectable == 0:
+            return
+            
+        # Satış ID-sini mətndan çıxar
+        sale_text = item.text()
+        try:
+            # Satış məlumatlarını verilənlər bazasından al
+            if not self.db.connect():
+                return
+                
+            # Son satışları yenidən sorğula
+            query = """
+                SELECT dl.*, p.name as patient_name, pr.diagnosis, pr.instructions,
+                       GROUP_CONCAT(CONCAT(m.name, ' - ', m.dosage) SEPARATOR ', ') as medications
+                FROM dispensing_logs dl
+                JOIN patients p ON dl.patient_id = p.id
+                JOIN prescriptions pr ON dl.prescription_id = pr.id
+                LEFT JOIN prescription_items pi ON pr.id = pi.prescription_id
+                LEFT JOIN medications m ON pi.medication_id = m.id
+                WHERE dl.pharmacy_id = %s
+                GROUP BY dl.id
+                ORDER BY dl.created_at DESC
+                LIMIT 10
+            """
+            
+            sales = self.db.execute_query(query, (self.user_data['pharmacy_id'],))
+            if not sales:
+                return
+                
+            # Klik edilmiş sətirə uyğun satışı tap
+            row_index = self.sales_list.row(item)
+            if row_index < len(sales):
+                sale = sales[row_index]
+                self.display_sale_details_dialog(sale)
+                
+        except Exception as e:
+            QMessageBox.warning(self, "Xəta", f"Satış təfərrüatları yüklənmədi: {e}")
+        finally:
+            self.db.disconnect()
+    
+    def display_sale_details_dialog(self, sale):
+        """Satış təfərrüatları dialoqunu göstər"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Satış Təfərrüatları")
+        dialog.setFixedSize(500, 400)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Başlıq
+        title = QLabel("📋 Satış Təfərrüatları")
+        title.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        title.setStyleSheet("color: #00BCD4; padding: 10px;")
+        title.setAlignment(Qt.AlignCenter)
+        
+        # Məlumat sahəsi
+        info_text = f"""
+<b>Pasiyent:</b> {sale['patient_name']}<br>
+<b>Tarix:</b> {sale['created_at'].strftime('%d.%m.%Y %H:%M')}<br>
+<b>Yekun məbləğ:</b> {sale['total_price']:.2f} ₼<br>
+<b>Komisyon:</b> {sale['commission_amount']:.2f} ₼<br>
+<b>Diaqnoz:</b> {sale.get('diagnosis', 'Göstərilməyib')}<br>
+<b>Təlimatlar:</b> {sale.get('instructions', 'Göstərilməyib')}<br>
+<b>Dərmanlar:</b> {sale.get('medications', 'Məlumat yoxdur')}
+        """
+        
+        info_label = QLabel(info_text)
+        info_label.setWordWrap(True)
+        info_label.setStyleSheet("padding: 15px; background: #f5f5f5; border-radius: 8px;")
+        
+        # Bağla düyməsi
+        close_button = QPushButton("Bağla")
+        close_button.setStyleSheet("""
+            QPushButton {
+                background: #00BCD4;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 10px 20px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background: #00ACC1; }
+        """)
+        close_button.clicked.connect(dialog.accept)
+        
+        layout.addWidget(title)
+        layout.addWidget(info_label)
+        layout.addWidget(close_button)
+        
+        dialog.exec_()
+    
+    def export_to_excel(self):
+        """Satış məlumatlarını Excel-ə export et"""
+        try:
+            from openpyxl import Workbook
+            from openpyxl.styles import Font, PatternFill, Alignment
+            from datetime import datetime
+            import os
+            
+            if not self.db.connect():
+                QMessageBox.critical(self, "Xəta", "Verilənlər bazasına qoşulma xətası!")
+                return
+            
+            # Bu ayın satış məlumatlarını al
+            query = """
+                SELECT dl.created_at, p.name as patient_name, dl.total_price, 
+                       dl.commission_amount, pr.diagnosis, pr.instructions
+                FROM dispensing_logs dl
+                JOIN patients p ON dl.patient_id = p.id
+                JOIN prescriptions pr ON dl.prescription_id = pr.id
+                WHERE dl.pharmacy_id = %s 
+                AND YEAR(dl.created_at) = YEAR(CURDATE()) 
+                AND MONTH(dl.created_at) = MONTH(CURDATE())
+                ORDER BY dl.created_at DESC
+            """
+            
+            sales_data = self.db.execute_query(query, (self.user_data['pharmacy_id'],))
+            
+            # Excel faylı yarat
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Satış Hesabatı"
+            
+            # Başlıqlar
+            headers = ["Tarix", "Pasiyent", "Məbləğ (₼)", "Komisyon (₼)", "Diaqnoz", "Təlimatlar"]
+            for col, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col, value=header)
+                cell.font = Font(bold=True)
+                cell.fill = PatternFill(start_color="00BCD4", end_color="00BCD4", fill_type="solid")
+                cell.alignment = Alignment(horizontal="center")
+            
+            # Məlumatları əlavə et
+            for row, sale in enumerate(sales_data, 2):
+                ws.cell(row=row, column=1, value=sale['created_at'].strftime('%d.%m.%Y %H:%M'))
+                ws.cell(row=row, column=2, value=sale['patient_name'])
+                ws.cell(row=row, column=3, value=float(sale['total_price']))
+                ws.cell(row=row, column=4, value=float(sale['commission_amount']))
+                ws.cell(row=row, column=5, value=sale.get('diagnosis', ''))
+                ws.cell(row=row, column=6, value=sale.get('instructions', ''))
+            
+            # Fayl adı
+            filename = f"BioScript_Satış_Hesabatı_{datetime.now().strftime('%Y_%m_%d')}.xlsx"
+            filepath = os.path.join(os.path.expanduser("~"), filename)
+            
+            wb.save(filepath)
+            
+            QMessageBox.information(self, "Uğur", 
+                f"Excel faylı uğurla yaradıldı!\nYer: {filepath}\n\nYekun satış: {len(sales_data)} ədəd")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Xəta", f"Excel export xətası: {e}")
+        finally:
+            if hasattr(self, 'db'):
+                self.db.disconnect()
         
     def load_dashboard_data(self):
         """Dashboard məlumatlarını yüklə"""
