@@ -6,14 +6,16 @@ Həkim köməkçisi və resept analiz sistemi
 
 import os
 import json
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 
 class BioScriptAI:
     """BioScript üçün Gemini AI köməkçisi"""
     
     def __init__(self):
-        self.client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY environment variable təyin edilməlidir")
+        genai.configure(api_key=api_key)
         
     def analyze_patient_history(self, patient_data, prescriptions):
         """Xəstənin tarixçəsini analiz edir"""
@@ -48,10 +50,8 @@ class BioScriptAI:
             Cavabı Azərbaycan dilində, qısa və aydın verin.
             """
             
-            response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt
-            )
+            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            response = model.generate_content(prompt)
             
             return response.text or "Analiz edilə bilmədi"
             
@@ -73,10 +73,8 @@ class BioScriptAI:
             4. Xəbərdarlıqlar
             """
             
-            response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt
-            )
+            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            response = model.generate_content(prompt)
             
             return response.text or "Məsləhət alına bilmədi"
             
@@ -94,10 +92,8 @@ class BioScriptAI:
             Azərbaycan dilində professional və faydalı cavab verin.
             """
             
-            response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt
-            )
+            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            response = model.generate_content(prompt)
             
             return response.text or "Cavab alına bilmədi"
             
