@@ -34,7 +34,8 @@ class PharmacyLoginWindow(QMainWindow):
         # Ana layout
         main_layout = QVBoxLayout(central_widget)
         main_layout.setAlignment(Qt.AlignCenter)
-        main_layout.setSpacing(30)
+        main_layout.setSpacing(40)
+        main_layout.setContentsMargins(40, 60, 40, 60)
         
         # BioScript Orijinal Logo
         logo_label = QLabel()
@@ -56,7 +57,8 @@ class PharmacyLoginWindow(QMainWindow):
         
         logo_label.setStyleSheet("""
             background: transparent;
-            margin: 20px;
+            margin: 30px;
+            min-height: 200px;
         """)
         main_layout.addWidget(logo_label)
         
@@ -67,7 +69,8 @@ class PharmacyLoginWindow(QMainWindow):
         subtitle_label.setStyleSheet("""
             color: #B3E5FC;
             background: transparent;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            padding: 10px;
         """)
         main_layout.addWidget(subtitle_label)
         
@@ -83,7 +86,7 @@ class PharmacyLoginWindow(QMainWindow):
         gradient = QLinearGradient(0, 0, 0, 1)
         gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
         gradient.setColorAt(0, QColor(0, 188, 212))   # BioScript mavi 
-        gradient.setColorAt(1, QColor(0, 96, 139))    # Tünd BioScript mavi
+        gradient.setColorAt(1, QColor(0, 150, 180))   # Açıq BioScript mavi (logo üçün)
         palette.setBrush(QPalette.Window, QBrush(gradient))
         self.setPalette(palette)
         
@@ -91,18 +94,19 @@ class PharmacyLoginWindow(QMainWindow):
         """Giriş formunu yarat"""
         # Form container
         form_widget = QWidget()
-        form_widget.setFixedSize(400, 300)
+        form_widget.setFixedSize(450, 350)
         form_widget.setStyleSheet("""
             QWidget {
-                background: rgba(255, 255, 255, 0.9);
+                background: rgba(255, 255, 255, 0.95);
                 border-radius: 15px;
-                padding: 20px;
+                padding: 30px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
             }
         """)
         
         form_layout = QVBoxLayout(form_widget)
-        form_layout.setSpacing(20)
-        form_layout.setContentsMargins(30, 30, 30, 30)
+        form_layout.setSpacing(25)
+        form_layout.setContentsMargins(35, 35, 35, 35)
         
         # İstifadəçi adı
         username_label = QLabel("İstifadəçi Adı:")
@@ -114,11 +118,12 @@ class PharmacyLoginWindow(QMainWindow):
         self.username_input.setFont(QFont("Segoe UI", 11))
         self.username_input.setStyleSheet("""
             QLineEdit {
-                padding: 12px;
+                padding: 15px;
                 border: 2px solid #E3F2FD;
                 border-radius: 8px;
                 background: white;
                 font-size: 11pt;
+                min-height: 20px;
             }
             QLineEdit:focus {
                 border-color: #00BCD4;
@@ -136,11 +141,12 @@ class PharmacyLoginWindow(QMainWindow):
         self.password_input.setFont(QFont("Segoe UI", 11))
         self.password_input.setStyleSheet("""
             QLineEdit {
-                padding: 12px;
+                padding: 15px;
                 border: 2px solid #E3F2FD;
                 border-radius: 8px;
                 background: white;
                 font-size: 11pt;
+                min-height: 20px;
             }
             QLineEdit:focus {
                 border-color: #00BCD4;

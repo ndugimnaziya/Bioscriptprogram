@@ -61,7 +61,7 @@ class PharmacyDashboard(QMainWindow):
     def create_header(self, main_layout):
         """Başlıq bölməsini yarat"""
         header_frame = QFrame()
-        header_frame.setFixedHeight(80)
+        header_frame.setFixedHeight(100)
         header_frame.setStyleSheet("""
             QFrame {
                 background: rgba(255, 255, 255, 0.9);
@@ -71,7 +71,7 @@ class PharmacyDashboard(QMainWindow):
         """)
         
         header_layout = QHBoxLayout(header_frame)
-        header_layout.setContentsMargins(20, 10, 20, 10)
+        header_layout.setContentsMargins(25, 15, 25, 15)
         
         # Sol tərəf - məlumat
         left_info = QVBoxLayout()

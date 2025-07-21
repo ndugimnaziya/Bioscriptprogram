@@ -257,7 +257,7 @@ class SalesDialog(QDialog):
             if item.is_available_checkbox.isChecked() and item.price_input.text():
                 try:
                     price = float(item.price_input.text())
-                    self.total_price += price
+                    self.total_price = float(self.total_price) + price
                 except ValueError:
                     pass
                     
@@ -301,7 +301,8 @@ class SalesDialog(QDialog):
             
         try:
             # Komisyon məbləği hesabla (3%)
-            commission = self.total_price * (self.user_data.get('commission_rate', 3.0) / 100.0)
+            commission_rate = float(self.user_data.get('commission_rate', 3.0))
+            commission = float(self.total_price) * (commission_rate / 100.0)
             
             # dispensing_logs cədvəlinə əlavə et
             insert_query = """
@@ -315,8 +316,8 @@ class SalesDialog(QDialog):
                 self.user_data['pharmacy_id'],
                 self.user_data['id'],
                 self.selected_prescription['patient_id'],
-                self.total_price,
-                commission
+                float(self.total_price),
+                float(commission)
             ))
             
             # Reseptin statusunu yenilə
@@ -333,7 +334,7 @@ class SalesDialog(QDialog):
                 SET current_month_commission = current_month_commission + %s
                 WHERE id = %s
             """
-            self.db.execute_query(commission_query, (commission, self.user_data['pharmacy_id']))
+            self.db.execute_query(commission_query, (float(commission), self.user_data['pharmacy_id']))
             
             return True
             
