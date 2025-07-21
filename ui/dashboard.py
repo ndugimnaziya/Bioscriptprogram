@@ -34,16 +34,16 @@ class AnalyticsWidget(QWidget):
         layout.setContentsMargins(20, 20, 20, 20)
         
         # Statistika kartları - əvvəlcə yaradılır, sonra yenilənir
-        self.today_card = self.create_stat_card("Bu gün", "0", "resept", "#4caf50")
+        self.today_card = self.create_stat_card("Bu Gün", "0", "Resept", "#4caf50")
         layout.addWidget(self.today_card, 0, 0)
         
-        self.month_card = self.create_stat_card("Bu ay", "0", "resept", "#2196f3")
+        self.month_card = self.create_stat_card("Bu Ay", "0", "Resept", "#2196f3")
         layout.addWidget(self.month_card, 0, 1)
         
-        self.total_card = self.create_stat_card("Ümumi", "0", "resept", "#ff9800")
+        self.total_card = self.create_stat_card("Ümumi", "0", "Resept", "#ff9800")
         layout.addWidget(self.total_card, 0, 2)
         
-        self.patients_card = self.create_stat_card("Pasiyentlər", "0", "nəfər", "#9c27b0")
+        self.patients_card = self.create_stat_card("Pasiyentlər", "0", "Nəfər", "#9c27b0")
         layout.addWidget(self.patients_card, 0, 3)
         
         # Son reseptlər
@@ -302,16 +302,8 @@ class AIAssistantWidget(QWidget):
         quick_buttons_layout.addWidget(suggest_btn)
         layout.addLayout(quick_buttons_layout)
         
-        # Xoş gəldin mesajı - HTML formatında
-        welcome_msg = "Salam! Mən sizin <strong>AI həkim köməkçinizəm</strong>. Sizə necə kömək edə bilərəm?"
-        self.chat_history.setHtml(f"""
-        <div style='margin: 10px 0; text-align: left;'>
-            <div style='background: #f5f5f5; color: #333; border-radius: 15px; padding: 12px; display: inline-block; max-width: 70%; border: 1px solid #e0e0e0;'>
-                {welcome_msg}
-            </div>
-            <div style='color: #666; font-size: 10px; margin-top: 5px;'>{datetime.now().strftime("%H:%M")}</div>
-        </div>
-        """)
+        # AI başda heç bir şey yazmasın - boş başlasın
+        self.chat_history.clear()
         
         # Scroll bar-ın həmişə aşağıda olmasını təmin et
         self.chat_history.verticalScrollBar().setValue(

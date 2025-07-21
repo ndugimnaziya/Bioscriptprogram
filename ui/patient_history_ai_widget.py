@@ -309,8 +309,74 @@ class PatientHistoryAIWidget(QWidget):
         
         main_splitter.addWidget(prescription_frame)
         
-        # Splitter nisbətləri
-        main_splitter.setSizes([400, 600])
+        # Üçüncü bölmə - AI Chat Bölməsi
+        chat_frame = QGroupBox("💬 AI Həkim Chat")
+        chat_frame.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        chat_frame.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                border: 2px solid #e8f5e8;
+                border-radius: 10px;
+                margin: 10px;
+                padding: 15px;
+                background: white;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 15px;
+                padding: 0 10px;
+                color: #2e7d32;
+                background: white;
+            }
+        """)
+        
+        chat_layout = QVBoxLayout(chat_frame)
+        
+        # Chat tarixi
+        self.chat_history = QTextEdit()
+        self.chat_history.setMaximumHeight(300)
+        self.chat_history.setReadOnly(True)
+        self.chat_history.setStyleSheet("""
+            QTextEdit {
+                border: 2px solid #e8f5e8;
+                border-radius: 8px;
+                padding: 10px;
+                background: #f9fffe;
+                font-family: 'Segoe UI';
+                font-size: 12px;
+            }
+        """)
+        
+        # Chat input
+        self.chat_input = QLineEdit()
+        self.chat_input.setPlaceholderText("AI həkimə sualınızı yazın...")
+        self.chat_input.returnPressed.connect(self.send_chat_message)
+        
+        send_chat_btn = QPushButton("Göndər")
+        send_chat_btn.clicked.connect(self.send_chat_message)
+        send_chat_btn.setStyleSheet("""
+            QPushButton {
+                background: #4caf50;
+                color: white;
+                border: none;
+                padding: 8px 15px;
+                border-radius: 6px;
+                font-weight: bold;
+            }
+        """)
+        
+        # Chat input layout
+        chat_input_layout = QHBoxLayout()
+        chat_input_layout.addWidget(self.chat_input)
+        chat_input_layout.addWidget(send_chat_btn)
+        
+        chat_layout.addWidget(self.chat_history)
+        chat_layout.addLayout(chat_input_layout)
+        
+        main_splitter.addWidget(chat_frame)
+        
+        # Splitter nisbətləri - 3 hissə üçün
+        main_splitter.setSizes([300, 400, 300])
         
         layout.addWidget(main_splitter)
         
@@ -390,9 +456,9 @@ class PatientHistoryAIWidget(QWidget):
                 }
                 self.patient_history.append(history_item)
                 
-                # List widget-ə əlavə et
+                # List widget-ə əlavə et - həkim adı görünməsin
                 item_text = f"""
-                📅 {tarix_str} - Dr. {hekim_ad} {hekim_soyad}
+                📅 {tarix_str}
                 🩺 Şikayət: {sikayət[:50]}{'...' if len(sikayət) > 50 else ''}
                 🔬 Diaqnoz: {diaqnoz[:50]}{'...' if len(diaqnoz) > 50 else ''}
                 💊 Dərman sayı: {len(meds)}
@@ -559,16 +625,64 @@ class PatientHistoryAIWidget(QWidget):
                     details += f"{i}. {med}\n\n"
             
             QMessageBox.information(self, "Resept Detalları", details)
+    
+    def send_chat_message(self):
+        """Chat mesajı göndər"""
+        message = self.chat_input.text().strip()
+        if not message:
+            return
+        
+        # İstifadəçi mesajını əlavə et
+        self.add_chat_message("Siz", message, "#e3f2fd")
+        self.chat_input.clear()
+        
+        # AI cavabını al
+        prompt = f"""
+        Pasiyent: {self.patient_data['ad']} {self.patient_data['soyad']}, Yaş: {self.patient_data['yaş']}
+        
+        Həkim sualı: {message}
+        
+        Bu suala professional həkim kimi cavab verin. Azərbaycan dilində qısa və aydın olsun.
+        """
+        
+        try:
+            response = self.ai_assistant.get_response(prompt)
+            self.add_chat_message("AI Həkim", response, "#e8f5e8")
+        except Exception as e:
+            self.add_chat_message("AI Həkim", f"Xəta: {str(e)}", "#ffebee")
+    
+    def add_chat_message(self, sender, message, bg_color):
+        """Chat mesajı əlavə et"""
+        current_time = datetime.now().strftime("%H:%M")
+        
+        # HTML formatında mesaj əlavə et
+        html_message = f"""
+        <div style='margin: 8px 0; background: {bg_color}; border-radius: 8px; padding: 10px;'>
+            <strong>{sender}</strong> <small style='color: #666;'>{current_time}</small><br>
+            {message}
+        </div>
+        """
+        
+        self.chat_history.append(html_message)
+        
+        # Aşağı scroll et
+        scrollbar = self.chat_history.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
             
     def add_medication_row(self):
         """Dərman cədvəlinə yeni sətir əlavə et"""
         row_count = self.medications_table.rowCount()
         self.medications_table.insertRow(row_count)
         
-        # Hər sütun üçün boş item əlavə et
+        # Hər sütun üçün düzenlenə bilən item əlavə et
         for col in range(4):
             item = QTableWidgetItem("")
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled)
             self.medications_table.setItem(row_count, col, item)
+        
+        # Cədvəli update et və görünürlüyü təmin et
+        self.medications_table.resizeColumnsToContents()
+        self.medications_table.scrollToBottom()
             
     def save_prescription(self):
         """Resepti yadda saxla"""
