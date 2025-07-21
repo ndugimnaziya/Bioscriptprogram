@@ -51,22 +51,22 @@ class FakeFingerprintProgressDialog(QDialog):
         center_layout.setContentsMargins(50, 50, 50, 50)
         center_layout.setSpacing(0)
         
-        # Ana çərçivə - daha böyük və mərkəzləşdirilmiş
+        # Ana çərçivə - kompakt ölçü
         main_frame = QFrame()
-        main_frame.setFixedSize(700, 600)
+        main_frame.setFixedSize(600, 450)
         main_frame.setStyleSheet("""
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #ffffff, stop:1 #f8f9fa);
                 border: 4px solid #1e88e5;
                 border-radius: 25px;
-                padding: 40px;
+                padding: 25px;
                 margin: auto;
             }
         """)
         frame_layout = QVBoxLayout(main_frame)
-        frame_layout.setSpacing(25)
-        frame_layout.setContentsMargins(30, 30, 30, 30)
+        frame_layout.setSpacing(15)
+        frame_layout.setContentsMargins(20, 20, 20, 20)
         
         # Başlıq - təmiz və böyük
         title = QLabel("🔍 Barmaq İzi Oxunur")
