@@ -30,8 +30,8 @@ class AnalyticsWidget(QWidget):
     def init_ui(self):
         """Analitika UI yaratma"""
         layout = QGridLayout(self)
-        layout.setSpacing(20)
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(25)
+        layout.setContentsMargins(30, 25, 30, 25)
         
         # Statistika kartları - əvvəlcə yaradılır, sonra yenilənir
         self.today_card = self.create_stat_card("Bu Gün", "0", "Resept", "#4caf50")
@@ -102,113 +102,134 @@ class AnalyticsWidget(QWidget):
         layout.addWidget(recent_frame, 1, 0, 1, 4)
         
     def show_prescription_details(self, item):
-        """Resept detallarını göstər"""
+        """Resept detallarını ətraflı göstər"""
         try:
-            # Item data-dan prescription məlumatlarını al
-            prescription_data = item.data(Qt.UserRole)
-            if not prescription_data:
-                return
+            from PyQt5.QtWidgets import QDialog, QMessageBox
             
-            prescription_id = prescription_data.get('id')
-            if not prescription_id:
-                return
+            # Item text-dən prescription ID-ni çıxar
+            item_text = item.text()
             
-            # Resept və dərman məlumatlarını verilənlər bazasından al
-            connection = self.db_manager.get_connection()
-            if not connection or not connection.is_connected():
-                QMessageBox.warning(self, "Verilənlər Bazası Xətası", 
-                                  "Bağlantı problemi")
-                return
-            
-            cursor = connection.cursor(dictionary=True)
-            
-            # Resept məlumatları
-            cursor.execute("""
-                SELECT p.*, d.name as həkim_adı, d.surname as həkim_soyadı,
-                       pat.name as pasiyent_adı, h.name as xəstəxana_adı
+            # Prescription ID-ni tap
+            prescription_id = None
+            try:
+                # Son reseptləri yenidən yükləyəndə item data-ya prescription məlumatlarını saxla
+                connection = self.db_manager.get_connection()
+                if not connection or not connection.is_connected():
+                    QMessageBox.warning(self, "Verilənlər Bazası Xətası", 
+                                      "Bağlantı problemi")
+                    return
+                
+                cursor = connection.cursor(dictionary=True)
+                
+                # Item-dən pasiyent adını çıxaraq resepti tap
+                patient_name = item_text.split(' - ')[0]
+                
+                query = """
+                SELECT p.*, pt.name as patient_name, h.name as hospital_name
                 FROM prescriptions p
-                JOIN doctors d ON p.doctor_id = d.id
-                JOIN patients pat ON p.patient_id = pat.id
+                JOIN patients pt ON p.patient_id = pt.id
                 JOIN hospitals h ON p.hospital_id = h.id
-                WHERE p.id = %s
-            """, (prescription_id,))
-            
-            prescription = cursor.fetchone()
-            if not prescription:
-                return
-            
-            # Dərman məlumatları
-            cursor.execute("""
+                WHERE p.doctor_id = %s AND pt.name LIKE %s
+                ORDER BY p.issued_at DESC
+                LIMIT 1
+                """
+                
+                cursor.execute(query, (self.doctor_id, f"%{patient_name}%"))
+                prescription = cursor.fetchone()
+                
+                if not prescription:
+                    QMessageBox.information(self, "Məlumat", "Resept məlumatları tapılmadı")
+                    return
+                
+                prescription_id = prescription['id']
+                
+                # Dərman məlumatlarını al
+                cursor.execute("""
                 SELECT name, dosage, instructions
                 FROM prescription_items
                 WHERE prescription_id = %s
-            """, (prescription_id,))
-            
-            medications = cursor.fetchall()
-            
-            # Detallı məlumat dialoqu
-            details = f"""
+                """, (prescription_id,))
+                
+                medications = cursor.fetchall()
+                
+                # Detallı məlumat dialoqu
+                details = f"""
 RESEPT DETALLARI
 
 📅 Tarix: {prescription['issued_at'].strftime('%d.%m.%Y %H:%M')}
-👤 Pasiyent: {prescription['pasiyent_adı']}
-🏥 Xəstəxana: {prescription['xəstəxana_adı']}
+👤 Pasiyent: {prescription['patient_name']}
+🏥 Xəstəxana: {prescription['hospital_name']}
 
 🩺 Şikayət: {prescription['complaint'] or 'Qeyd edilməyib'}
 🔬 Diaqnoz: {prescription['diagnosis'] or 'Qeyd edilməyib'}
 
 💊 DƏRMANLAR:
 """
-            
-            if medications:
-                for i, med in enumerate(medications, 1):
-                    details += f"""
+                
+                if medications:
+                    for i, med in enumerate(medications, 1):
+                        details += f"""
 {i}. {med['name']}
    📏 Dozaj: {med['dosage'] or 'Qeyd edilməyib'}
    📋 İstifadə: {med['instructions'] or 'Qeyd edilməyib'}
 """
-            else:
-                details += "Dərman təyin edilməyib"
-            
-            QMessageBox.information(self, "Resept Detalları", details)
-            
+                else:
+                    details += "Dərman təyin edilməyib"
+                
+                QMessageBox.information(self, "Resept Detalları", details)
+                
+            except Exception as inner_e:
+                QMessageBox.critical(self, "Xəta", f"Resept tapa bilmədik: {str(inner_e)}")
+                
         except Exception as e:
             QMessageBox.critical(self, "Xəta", f"Resept məlumatları alınarkən xəta: {str(e)}")
+                
+    def update_prescription_details_view(self, prescription_id):
+        """MySQL strukturuna uyğun resept detayları - köməkçi funksiya"""
+        # Bu funksiya artıq istifadə olunmur, show_prescription_details əsas funksiyadır
+        pass
+
         
     def create_stat_card(self, title, value, unit, color):
-        """Sadə statistika kartı yaratma"""
+        """Təmiz statistika kartı yaratma"""
         card = QFrame()
-        card.setFixedSize(180, 100)
+        card.setFixedSize(220, 120)  # Daha böyük kartlar
         card.setStyleSheet(f"""
             QFrame {{
-                background: white;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 white, stop:1 #f8f9fa);
                 border: 2px solid {color};
-                border-radius: 8px;
-                margin: 5px;
+                border-radius: 12px;
+                margin: 8px;
+                padding: 5px;
+            }}
+            QFrame:hover {{
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                border: 3px solid {color};
             }}
         """)
         
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(5)
+        layout.setContentsMargins(15, 15, 15, 10)
+        layout.setSpacing(8)
         
         # Başlıq
         title_label = QLabel(title)
-        title_label.setFont(QFont("Segoe UI", 11, QFont.Bold))
-        title_label.setStyleSheet(f"color: {color};")
+        title_label.setFont(QFont("Segoe UI", 13, QFont.Bold))
+        title_label.setStyleSheet(f"color: {color}; background: transparent;")
         title_label.setAlignment(Qt.AlignCenter)
         
         # Dəyər
         value_label = QLabel(value)
-        value_label.setFont(QFont("Segoe UI", 32, QFont.Bold))
-        value_label.setStyleSheet(f"color: {color};")
+        value_label.setFont(QFont("Segoe UI", 28, QFont.Bold))
+        value_label.setStyleSheet(f"color: {color}; background: transparent;")
         value_label.setAlignment(Qt.AlignCenter)
         card.value_label = value_label
         
         # Vahid
         unit_label = QLabel(unit)
-        unit_label.setFont(QFont("Segoe UI", 10))
-        unit_label.setStyleSheet("color: #666;")
+        unit_label.setFont(QFont("Segoe UI", 11))
+        unit_label.setStyleSheet("color: #666; background: transparent;")
         unit_label.setAlignment(Qt.AlignCenter)
         
         layout.addWidget(title_label)
@@ -259,28 +280,41 @@ RESEPT DETALLARI
             print(f"Kartları yeniləmə xətası: {e}")
     
     def load_recent_prescriptions(self):
-        """Son reseptləri yükləmə"""
+        """Son reseptləri yükləmə və məlumatlarla birləşdirmə"""
         try:
+            connection = self.db_manager.get_connection()
+            if not connection or not connection.is_connected():
+                return
+                
+            cursor = connection.cursor(dictionary=True)
+            
             # Son 10 resepti al
             query = """
-            SELECT p.*, pt.name as patient_name, DATE(p.issued_at) as date
+            SELECT p.*, pt.name as patient_name, 
+                   DATE_FORMAT(p.issued_at, '%d.%m.%Y') as date,
+                   h.name as hospital_name
             FROM prescriptions p
-            JOIN patients pt ON p.patient_id = pt.id
+            JOIN patients pt ON p.patient_id = pt.id  
+            JOIN hospitals h ON p.hospital_id = h.id
             WHERE p.doctor_id = %s
             ORDER BY p.issued_at DESC
             LIMIT 10
             """
             
-            self.db_manager.cursor.execute(query, (self.doctor_id,))
-            prescriptions = self.db_manager.cursor.fetchall()
+            cursor.execute(query, (self.doctor_id,))
+            prescriptions = cursor.fetchall()
             
             self.recent_list.clear()
             for prescription in prescriptions:
+                # Daha ətraflı məlumat
                 item_text = f"{prescription['patient_name']} - {prescription['date']}"
                 if prescription['diagnosis']:
-                    item_text += f" - {prescription['diagnosis'][:30]}..."
+                    diagnosis = prescription['diagnosis'][:40] + "..." if len(prescription['diagnosis']) > 40 else prescription['diagnosis']
+                    item_text += f" - {diagnosis}"
                 
                 item = QListWidgetItem(item_text)
+                # Prescription data-nı item-a əlavə et
+                item.setData(Qt.UserRole, prescription)
                 self.recent_list.addItem(item)
                 
         except Exception as e:

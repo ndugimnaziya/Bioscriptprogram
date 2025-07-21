@@ -45,7 +45,10 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - **Test Həkim**: huseyn/huseyn
 
 ## Son Dəyişikliklər
-- 2025-01-21: **SON YENİLİK** - Həqiqi tam ekran giriş (FramelessWindowHint + showFullScreen)
+- 2025-01-21: **SON YENİLİK** - Dashboard kartları təmizləndi və böyüdüldü (220x120px)
+- 2025-01-21: **YENİ** - Son reseptlərə klik edəndə ətraflı məlumat görünür (pasiyent, tarix, diaqnoz, dərmanlar)
+- 2025-01-21: **YENİ** - MySQL strukturuna uyğun resept detalları və dərman məlumatları
+- 2025-01-21: **YENİ** - Həqiqi tam ekran giriş (FramelessWindowHint + showFullScreen)
 - 2025-01-21: **YENİ** - ÇIXIŞ düyməsi və ESC açarı ilə çıxış əlavə edildi
 - 2025-01-21: **YENİ** - Logo ölçüsü 450x180px olaraq düzəldildi və yazı problemləri həll edildi
 - 2025-01-21: **YENİ** - Tam ekran giriş səhifəsi optimallaşdırıldı və spacing artırıldı
