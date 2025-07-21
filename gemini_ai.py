@@ -62,6 +62,15 @@ class BioScriptAI:
         except Exception as e:
             return f"Analiz xətası: {str(e)}"
     
+    def get_response(self, prompt):
+        """Ümumi AI cavab alınması"""
+        try:
+            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            response = model.generate_content(prompt)
+            return response.text or "Cavab alına bilmədi"
+        except Exception as e:
+            return f"AI xətası: {str(e)}"
+    
     def get_treatment_suggestion(self, complaint, symptoms, patient_history=""):
         """Şikayət və simptomlara görə müalicə təklifi"""
         try:

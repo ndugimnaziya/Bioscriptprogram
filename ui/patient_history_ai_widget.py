@@ -55,8 +55,8 @@ class PatientHistoryAIWidget(QWidget):
         # Ana splitter
         main_splitter = QSplitter(Qt.Horizontal)
         
-        # Sol tərəf - Keçmiş reseptlər
-        history_frame = QGroupBox("📋 Keçmiş Reseptlər")
+        # Sol tərəf - Keçmiş reseptlər və AI köməkçi
+        history_frame = QGroupBox("📋 Keçmiş Reseptlər və AI Təhlil")
         history_frame.setFont(QFont("Segoe UI", 14, QFont.Bold))
         history_frame.setStyleSheet("""
             QGroupBox {
@@ -107,25 +107,46 @@ class PatientHistoryAIWidget(QWidget):
         
         history_layout.addWidget(self.history_list)
         
-        # AI təhlil düyməsi
-        self.ai_analyze_btn = QPushButton("🤖 AI Təhlil Et")
-        self.ai_analyze_btn.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        # AI düymələri
+        ai_buttons_layout = QHBoxLayout()
+        
+        self.ai_analyze_btn = QPushButton("🤖 Tarixçə Təhlil Et")
+        self.ai_analyze_btn.setFont(QFont("Segoe UI", 11, QFont.Bold))
         self.ai_analyze_btn.setFixedHeight(40)
         self.ai_analyze_btn.clicked.connect(self.analyze_with_ai)
-        self.ai_analyze_btn.setStyleSheet("""
+        
+        self.ai_direct_btn = QPushButton("💡 AI Məsləhət Al")
+        self.ai_direct_btn.setFont(QFont("Segoe UI", 11, QFont.Bold))
+        self.ai_direct_btn.setFixedHeight(40)
+        self.ai_direct_btn.clicked.connect(self.get_direct_ai_advice)
+        
+        # Düymə stilləri
+        ai_button_style = """
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #ff9800, stop:1 #f57c00);
                 color: white;
                 border: none;
                 border-radius: 8px;
+                font-weight: bold;
+                margin: 2px;
             }
             QPushButton:hover {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #ffb74d, stop:1 #ff9800);
             }
-        """)
-        history_layout.addWidget(self.ai_analyze_btn)
+            QPushButton:disabled {
+                background: #cccccc;
+                color: #666666;
+            }
+        """
+        
+        self.ai_analyze_btn.setStyleSheet(ai_button_style)
+        self.ai_direct_btn.setStyleSheet(ai_button_style)
+        
+        ai_buttons_layout.addWidget(self.ai_analyze_btn)
+        ai_buttons_layout.addWidget(self.ai_direct_btn)
+        history_layout.addLayout(ai_buttons_layout)
         
         main_splitter.addWidget(history_frame)
         
@@ -368,6 +389,43 @@ class PatientHistoryAIWidget(QWidget):
         self.ai_thread = AIAnalysisThread(self.ai_assistant, self.patient_data, history_text)
         self.ai_thread.analysis_completed.connect(self.on_ai_analysis_completed)
         self.ai_thread.start()
+    
+    def get_direct_ai_advice(self):
+        """Birbaşa AI məsləhət al (tarixçə olmadan)"""
+        self.ai_direct_btn.setEnabled(False)
+        self.ai_direct_btn.setText("💡 Məsləhət alınır...")
+        
+        # Hazırkı şikayət və diaqnoz məlumatlarını al
+        complaint = self.complaint_input.toPlainText().strip()
+        diagnosis = self.diagnosis_input.text().strip()
+        
+        if not complaint and not diagnosis:
+            QMessageBox.information(self, "Məlumat", 
+                                  "Məsləhət almaq üçün şikayət və ya diaqnoz yazın.")
+            self.ai_direct_btn.setEnabled(True)
+            self.ai_direct_btn.setText("💡 AI Məsləhət Al")
+            return
+        
+        # AI üçün prompt hazırla
+        direct_prompt = f"""
+        Pasiyent: {self.patient_data['ad']} {self.patient_data['soyad']}, Yaş: {self.patient_data['yaş']}
+        
+        Şikayət: {complaint if complaint else 'Qeyd edilməyib'}
+        Diaqnoz: {diagnosis if diagnosis else 'Qeyd edilməyib'}
+        
+        Bu məlumatlara əsasən həkim üçün praktik məsləhət verin:
+        1. Müalicə yanaşması
+        2. Tövsiyə edilən dərmanlar
+        3. Diqqət edilməli məqamlar
+        4. Əlavə müayinə tövsiyələri
+        
+        Cavabı Azərbaycan dilində, qısa və aydın təqdim edin.
+        """
+        
+        # AI təhlil thread-də işə sal
+        self.ai_direct_thread = AIAnalysisThread(self.ai_assistant, self.patient_data, direct_prompt)
+        self.ai_direct_thread.analysis_completed.connect(self.on_direct_ai_completed)
+        self.ai_direct_thread.start()
         
     def prepare_history_for_ai(self):
         """AI üçün tarixçə mətnini hazırla"""
@@ -400,12 +458,22 @@ class PatientHistoryAIWidget(QWidget):
     def on_ai_analysis_completed(self, analysis_result):
         """AI təhlil tamamlandı"""
         self.ai_analyze_btn.setEnabled(True)
-        self.ai_analyze_btn.setText("🤖 AI Təhlil Et")
+        self.ai_analyze_btn.setText("🤖 Tarixçə Təhlil Et")
         
         if analysis_result:
             self.ai_recommendations.setPlainText(analysis_result)
         else:
             self.ai_recommendations.setPlainText("AI təhlil zamanı xəta baş verdi.")
+    
+    def on_direct_ai_completed(self, analysis_result):
+        """Birbaşa AI məsləhət tamamlandı"""
+        self.ai_direct_btn.setEnabled(True)
+        self.ai_direct_btn.setText("💡 AI Məsləhət Al")
+        
+        if analysis_result:
+            self.ai_recommendations.setPlainText(analysis_result)
+        else:
+            self.ai_recommendations.setPlainText("AI məsləhət zamanı xəta baş verdi.")
             
     def add_medication_row(self):
         """Dərman cədvəlinə yeni sətir əlavə et"""
@@ -532,7 +600,7 @@ class AIAnalysisThread(QThread):
             Cavabı Azərbaycan dilində və təbib üçün praktik məlumat şəklində verin.
             """
             
-            response = self.ai_assistant.get_medical_advice(prompt)
+            response = self.ai_assistant.get_response(prompt)
             self.analysis_completed.emit(response)
             
         except Exception as e:
