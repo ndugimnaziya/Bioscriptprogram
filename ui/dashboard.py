@@ -648,6 +648,31 @@ class BioScriptDashboard(QWidget):
         parent_layout.addWidget(buttons_frame)
         parent_layout.addStretch()
     
+    def start_fingerprint_workflow(self):
+        """Yeni barmaq izi workflow başlatma"""
+        try:
+            from ui.new_prescription_workflow import FingerprintFirstDialog
+            from PyQt5.QtWidgets import QMessageBox
+            
+            # Dialog yaradırıq
+            dialog = FingerprintFirstDialog(self.db_manager)
+            dialog.fingerprint_success.connect(self.on_fingerprint_success)
+            dialog.exec_()
+            
+        except Exception as e:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Xəta", f"Workflow başlatma xətası: {e}")
+            print(f"Workflow başlatma xətası: {e}")
+    
+    def on_fingerprint_success(self, patient_data):
+        """Barmaq izi uğurlu oxunduqda"""
+        from PyQt5.QtWidgets import QMessageBox
+        self.set_ai_patient_context(patient_data, [])
+        # Dashboard-da pasiyent məlumatlarını göstər
+        QMessageBox.information(self, "Pasiyent Tapıldı", 
+                               f"Pasiyent: {patient_data['name']} {patient_data['surname']}\n"
+                               f"Telefon: {patient_data.get('phone', 'N/A')}")
+    
     def set_ai_patient_context(self, patient_data, prescriptions):
         """AI-ya pasiyent kontekstini vermə"""
         self.ai_assistant.set_patient_context(patient_data, prescriptions)
