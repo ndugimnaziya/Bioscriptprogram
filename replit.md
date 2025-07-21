@@ -31,9 +31,12 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 
 ## Layihə Strukturu
 - `main.py` - Əsas aplikasiya
-- `ui/` - GUI komponentləri
+- `ui/` - GUI komponentləri (professional dizayn)
 - `database/` - Verilənlər bazası əlaqələri
 - `models/` - Data modelləri
+- `arduino/` - AS608 barmaq izi oxuyucu kodu
+- `gemini_ai.py` - AI həkim köməkçisi
+- `.env` - API açarları konfiguratsiyası
 
 ## MySQL Verilənlər Bazası
 - **Host**: 31.186.11.114
@@ -50,6 +53,9 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - 2025-01-21: Resept yazma workflow sistemi (barmaq izi → tarixçə → yeni resept)
 - 2025-01-21: .env fayl konfiguratsiyası əlavə edildi GEMINI_API_KEY üçün
 - 2025-01-21: python-dotenv kitabxanası ilə environment variable idarəetməsi
+- 2025-01-21: Professional UI dizayn yeniləməsi - modern gradient rənglər
+- 2025-01-21: Segoe UI font və yaxşılaşdırılmış button dizaynları
+- 2025-01-21: Tam funksional Arduino AS608 kodu və dokumentasiya
 
 ## İstifadəçi Seçimləri
 - Dil: Azərbaycan dili (tam interfeys)

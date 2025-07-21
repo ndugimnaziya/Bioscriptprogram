@@ -51,11 +51,52 @@ class AnalyticsWidget(QWidget):
         
         # Son reseptlər
         recent_frame = QGroupBox("Son Reseptlər")
-        recent_frame.setFont(QFont("Arial", 14, QFont.Bold))
+        recent_frame.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        recent_frame.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                border: 2px solid #e3f2fd;
+                border-radius: 10px;
+                margin: 15px 0;
+                padding: 15px;
+                background: white;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 15px;
+                padding: 0 10px;
+                color: #1565c0;
+                background: white;
+            }
+        """)
         recent_layout = QVBoxLayout(recent_frame)
         
         self.recent_list = QListWidget()
-        self.recent_list.setMaximumHeight(200)
+        self.recent_list.setMaximumHeight(250)
+        self.recent_list.setStyleSheet("""
+            QListWidget {
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                background: #fafafa;
+                padding: 8px;
+                font-family: 'Segoe UI';
+                font-size: 12px;
+            }
+            QListWidget::item {
+                padding: 12px;
+                border-bottom: 1px solid #e0e0e0;
+                border-radius: 4px;
+                margin: 2px 0;
+                background: white;
+            }
+            QListWidget::item:hover {
+                background: #f5f5f5;
+            }
+            QListWidget::item:selected {
+                background: #e3f2fd;
+                color: #1565c0;
+            }
+        """)
         recent_layout.addWidget(self.recent_list)
         
         layout.addWidget(recent_frame, 1, 0, 1, 4)
@@ -63,13 +104,19 @@ class AnalyticsWidget(QWidget):
     def create_stat_card(self, title, value, unit, color):
         """Statistika kartı yaratma"""
         card = QFrame()
-        card.setFixedSize(200, 120)
+        card.setFixedSize(220, 140)
         card.setStyleSheet(f"""
             QFrame {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
                                           stop:0 {color}, stop:1 {color}dd);
-                border-radius: 10px;
+                border-radius: 15px;
                 border: none;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                margin: 5px;
+            }}
+            QFrame:hover {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                          stop:0 {color}ee, stop:1 {color}ff);
             }}
         """)
         
@@ -77,17 +124,17 @@ class AnalyticsWidget(QWidget):
         layout.setContentsMargins(15, 15, 15, 15)
         
         title_label = QLabel(title)
-        title_label.setFont(QFont("Arial", 12, QFont.Bold))
-        title_label.setStyleSheet("color: white;")
+        title_label.setFont(QFont("Segoe UI", 13, QFont.Bold))
+        title_label.setStyleSheet("color: rgba(255,255,255,0.9); margin-bottom: 5px;")
         
         value_label = QLabel(value)
-        value_label.setFont(QFont("Arial", 28, QFont.Bold))
-        value_label.setStyleSheet("color: white;")
+        value_label.setFont(QFont("Segoe UI", 36, QFont.Bold))
+        value_label.setStyleSheet("color: white; margin: 10px 0;")
         value_label.setAlignment(Qt.AlignCenter)
         
         unit_label = QLabel(unit)
-        unit_label.setFont(QFont("Arial", 10))
-        unit_label.setStyleSheet("color: white;")
+        unit_label.setFont(QFont("Segoe UI", 11))
+        unit_label.setStyleSheet("color: rgba(255,255,255,0.8);")
         unit_label.setAlignment(Qt.AlignCenter)
         
         layout.addWidget(title_label)
@@ -372,12 +419,13 @@ class BioScriptDashboard(QWidget):
         
         # Sağ tərəf - AI köməkçisi
         right_frame = QFrame()
-        right_frame.setFixedWidth(400)
+        right_frame.setFixedWidth(450)
         right_frame.setStyleSheet("""
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #ffffff, stop:1 #f8f9fa);
-                border-left: 2px solid #e3f2fd;
+                border-left: 3px solid #e3f2fd;
+                border-radius: 0 15px 15px 0;
             }
         """)
         
@@ -403,7 +451,8 @@ class BioScriptDashboard(QWidget):
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                                           stop:0 #1e88e5, stop:1 #1976d2);
-                border-radius: 10px;
+                border-radius: 15px;
+                box-shadow: 0 4px 12px rgba(30,136,229,0.3);
             }
         """)
         
@@ -412,13 +461,13 @@ class BioScriptDashboard(QWidget):
         
         # Xoş gəlmisiniz
         welcome_label = QLabel(f"Xoş gəlmisiniz, Dr. {self.doctor_data['name']} {self.doctor_data['surname']}")
-        welcome_label.setFont(QFont("Arial", 18, QFont.Bold))
-        welcome_label.setStyleSheet("color: white;")
+        welcome_label.setFont(QFont("Segoe UI", 20, QFont.Bold))
+        welcome_label.setStyleSheet("color: white; padding: 5px;")
         
         # Tarix
         date_label = QLabel(datetime.now().strftime("%d.%m.%Y - %A"))
-        date_label.setFont(QFont("Arial", 12))
-        date_label.setStyleSheet("color: #e3f2fd;")
+        date_label.setFont(QFont("Segoe UI", 13))
+        date_label.setStyleSheet("color: rgba(255,255,255,0.9); padding: 5px;")
         date_label.setAlignment(Qt.AlignRight)
         
         header_layout.addWidget(welcome_label)
@@ -430,44 +479,73 @@ class BioScriptDashboard(QWidget):
     def create_action_buttons(self, parent_layout):
         """Əsas funksiya düymələri"""
         buttons_frame = QGroupBox("Əsas Funksiyalar")
-        buttons_frame.setFont(QFont("Arial", 14, QFont.Bold))
+        buttons_frame.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        buttons_frame.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                border: 2px solid #e3f2fd;
+                border-radius: 15px;
+                margin: 20px 0;
+                padding: 20px;
+                background: white;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 20px;
+                padding: 0 15px;
+                color: #1565c0;
+                background: white;
+            }
+        """)
         buttons_layout = QHBoxLayout(buttons_frame)
-        buttons_layout.setSpacing(20)
+        buttons_layout.setSpacing(30)
         
         # Yeni resept düyməsi
         new_prescription_btn = QPushButton("🔬 Yeni Resept Yaz")
-        new_prescription_btn.setFixedSize(200, 80)
-        new_prescription_btn.setFont(QFont("Arial", 14, QFont.Bold))
+        new_prescription_btn.setFixedSize(240, 90)
+        new_prescription_btn.setFont(QFont("Segoe UI", 15, QFont.Bold))
         new_prescription_btn.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #4caf50, stop:1 #388e3c);
                 color: white;
                 border: none;
-                border-radius: 10px;
+                border-radius: 15px;
+                padding: 15px;
+                box-shadow: 0 4px 8px rgba(76,175,80,0.3);
             }
             QPushButton:hover {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #66bb6a, stop:1 #4caf50);
+                transform: translateY(-2px);
+            }
+            QPushButton:pressed {
+                transform: translateY(0px);
             }
         """)
         new_prescription_btn.clicked.connect(self.new_prescription_requested.emit)
         
         # Resept tarixçəsi düyməsi
         view_prescriptions_btn = QPushButton("📋 Resept Tarixçəsi")
-        view_prescriptions_btn.setFixedSize(200, 80)
-        view_prescriptions_btn.setFont(QFont("Arial", 14, QFont.Bold))
+        view_prescriptions_btn.setFixedSize(240, 90)
+        view_prescriptions_btn.setFont(QFont("Segoe UI", 15, QFont.Bold))
         view_prescriptions_btn.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #2196f3, stop:1 #1976d2);
                 color: white;
                 border: none;
-                border-radius: 10px;
+                border-radius: 15px;
+                padding: 15px;
+                box-shadow: 0 4px 8px rgba(33,150,243,0.3);
             }
             QPushButton:hover {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                           stop:0 #42a5f5, stop:1 #2196f3);
+                transform: translateY(-2px);
+            }
+            QPushButton:pressed {
+                transform: translateY(0px);
             }
         """)
         view_prescriptions_btn.clicked.connect(self.view_prescriptions_requested.emit)

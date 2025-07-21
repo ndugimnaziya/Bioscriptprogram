@@ -186,6 +186,14 @@ class BioScriptMainWindow(QMainWindow):
         """
         
         self.setStyleSheet(style)
+        
+        # Ana pəncərə arxa planı
+        self.setStyleSheet("""
+            QMainWindow {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #f8f9fa, stop:1 #e9ecef);
+            }
+        """)
     
     def show_login(self):
         """Giriş pəncərəsini göstər"""
