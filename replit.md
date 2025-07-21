@@ -42,10 +42,12 @@ BioScript - "Səhiyyə Barmaqlarınızın Ucundadır!" sloqanı ilə modern tibb
 - **Test Həkim**: huseyn/huseyn
 
 ## Son Dəyişikliklər
-- 2025-01-21: Layihə sıfırdan yenidən başladıldı
-- 2025-01-21: MySQL verilənlər bazası inteqrasiyası tamamlandı
-- 2025-01-21: Tam ekran rejim və mavi dizayn tətbiq edildi
-- 2025-01-21: BioScript korporativ identity və sloqan əlavə edildi
+- 2025-01-21: Tamamilə yeni BioScript sistemi tamamlandı
+- 2025-01-21: Modern tam ekran giriş sistemi (login: huseyn/huseyn)
+- 2025-01-21: Dashboard analitika və statistika sistemi
+- 2025-01-21: Arduino AS608 barmaq izi oxuyucu inteqrasiyası
+- 2025-01-21: Gemini AI həkim köməkçisi və chatbot
+- 2025-01-21: Resept yazma workflow sistemi (barmaq izi → tarixçə → yeni resept)
 
 ## İstifadəçi Seçimləri
 - Dil: Azərbaycan dili (tam interfeys)

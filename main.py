@@ -16,10 +16,11 @@ from PyQt5.QtCore import Qt, QDate, QTimer, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon, QPalette, QColor, QPixmap
 
 from database.db_manager import DatabaseManager
-from ui.doctor_login import DoctorLoginWindow
-from ui.patient_search import PatientSearchWidget
-from ui.prescription_editor import PrescriptionEditorWidget
-from ui.statistics_dashboard import StatisticsDashboard
+from ui.new_doctor_login import NewDoctorLoginWindow
+from ui.dashboard import BioScriptDashboard
+from ui.prescription_workflow import (FingerprintScanDialog, PatientHistoryWidget, 
+                                     NewPrescriptionWidget)
+from gemini_ai import BioScriptAI
 
 class BioScriptMainWindow(QMainWindow):
     """Əsas aplikasiya pəncərəsi"""
@@ -42,103 +43,21 @@ class BioScriptMainWindow(QMainWindow):
         self.setWindowTitle("BioScript - Səhiyyə Barmaqlarınızın Ucundadır!")
         self.showMaximized()  # Tam ekran açılsın
         
-        # Mərkəzi widget
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+        # Mərkəzi widget stack
+        self.central_stack = QTabWidget()
+        self.central_stack.tabBar().setVisible(False)  # Tab bar gizlə
+        self.setCentralWidget(self.central_stack)
         
-        # Əsas layout
-        main_layout = QVBoxLayout(central_widget)
+        # Dashboard
+        self.dashboard = None
         
-        # Header
-        self.create_header(main_layout)
-        
-        # Tab widget
-        self.tab_widget = QTabWidget()
-        main_layout.addWidget(self.tab_widget)
-        
-        # Tablar
-        self.create_tabs()
+        # Resept workflow
+        self.prescription_workflow = None
         
         # Status bar
         self.statusBar().showMessage("Hazır")
     
-    def create_header(self, parent_layout):
-        """Header hissəsini yaratma"""
-        header_frame = QFrame()
-        header_frame.setFrameStyle(QFrame.Box)
-        header_frame.setMaximumHeight(80)
-        
-        header_layout = QHBoxLayout(header_frame)
-        
-        # Logo və başlıq
-        title_widget = QWidget()
-        title_layout = QHBoxLayout(title_widget)
-        title_layout.setSpacing(15)
-        title_layout.setContentsMargins(10, 5, 10, 5)
-        
-        # Logo (fingerprint emoji BioScript temasına uyğun)
-        logo_label = QLabel("👆")
-        logo_label.setFont(QFont("Arial", 48))
-        logo_label.setStyleSheet("margin: 0px; padding: 5px;")
-        title_layout.addWidget(logo_label)
-        
-        # Başlıq və sloqan
-        text_widget = QWidget()
-        text_layout = QVBoxLayout(text_widget)
-        text_layout.setSpacing(2)
-        text_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Ana başlıq
-        title_label = QLabel("BioScript")
-        title_label.setFont(QFont("Arial", 28, QFont.Bold))
-        title_label.setStyleSheet("color: #1e88e5; margin: 0px;")
-        
-        # Sloqan
-        slogan_label = QLabel("Səhiyyə Barmaqlarınızın Ucundadır!")
-        slogan_font = QFont("Arial", 12)
-        slogan_font.setItalic(True)
-        slogan_label.setFont(slogan_font)
-        slogan_label.setStyleSheet("color: #1976d2; margin: 0px;")
-        
-        text_layout.addWidget(title_label)
-        text_layout.addWidget(slogan_label)
-        title_layout.addWidget(text_widget)
-        
-        # Həkim məlumatları
-        self.doctor_info_label = QLabel("Xoş gəlmisiniz")
-        self.doctor_info_label.setFont(QFont("Arial", 12))
-        self.doctor_info_label.setAlignment(Qt.AlignRight)
-        
-        # Çıxış düyməsi
-        logout_btn = QPushButton("Çıxış")
-        logout_btn.clicked.connect(self.logout)
-        logout_btn.setMaximumWidth(100)
-        
-        header_layout.addWidget(title_widget)
-        header_layout.addStretch()
-        header_layout.addWidget(self.doctor_info_label)
-        header_layout.addWidget(logout_btn)
-        
-        parent_layout.addWidget(header_frame)
-    
-    def create_tabs(self):
-        """Tab pəncərələrini yaratma"""
-        # Pasiyent Axtarışı
-        self.patient_search_widget = PatientSearchWidget(self.db_manager)
-        self.patient_search_widget.patient_selected.connect(self.on_patient_selected)
-        self.tab_widget.addTab(self.patient_search_widget, "📋 Pasiyent Axtarışı")
-        
-        # Resept Yazma
-        self.prescription_editor = PrescriptionEditorWidget(self.db_manager)
-        self.tab_widget.addTab(self.prescription_editor, "📝 Resept Yazma")
-        
-        # Statistika
-        self.statistics_dashboard = StatisticsDashboard(self.db_manager)
-        self.tab_widget.addTab(self.statistics_dashboard, "📊 Statistika")
-        
-        # Tabların başlanğıc vəziyyəti
-        self.tab_widget.setTabEnabled(1, False)  # Resept yazma - pasiyent seçiləndən sonra
-        self.tab_widget.setTabEnabled(2, False)  # Statistika - həkim girişindən sonra
+
     
     def apply_style(self):
         """Aplikasiya stilini tətbiq etmə - BioScript mavi teması"""
@@ -266,7 +185,7 @@ class BioScriptMainWindow(QMainWindow):
     
     def show_login(self):
         """Giriş pəncərəsini göstər"""
-        login_window = DoctorLoginWindow(self.db_manager)
+        login_window = NewDoctorLoginWindow(self.db_manager)
         login_window.login_successful.connect(self.on_login_successful)
         
         # Ana pəncərəni gizlət
@@ -281,40 +200,132 @@ class BioScriptMainWindow(QMainWindow):
         """Uğurlu giriş"""
         self.current_doctor = doctor_data
         
-        # Həkim məlumatlarını yenilə
-        doctor_name = f"Dr. {doctor_data['name']} {doctor_data['surname']}"
-        self.doctor_info_label.setText(f"Xoş gəlmisiniz, {doctor_name}")
+        # Dashboard yaratma
+        self.dashboard = BioScriptDashboard(self.db_manager, doctor_data)
+        self.dashboard.new_prescription_requested.connect(self.start_new_prescription)
+        self.dashboard.view_prescriptions_requested.connect(self.view_prescriptions)
         
-        # Tabları aktivləşdir
-        self.tab_widget.setTabEnabled(2, True)  # Statistika
+        # Dashboard-u stack-ə əlavə et
+        self.central_stack.addWidget(self.dashboard)
+        self.central_stack.setCurrentWidget(self.dashboard)
         
         # Ana pəncərəni göstər
         self.show()
         
-        # Statusu yenilə
-        self.statusBar().showMessage(f"Giriş edildi: {doctor_name}")
-        
-        # Statistikaları yenilə
-        if hasattr(self.statistics_dashboard, 'refresh_data'):
-            self.statistics_dashboard.refresh_data(doctor_data['id'])
+        # Status yenilə
+        doctor_name = f"Dr. {doctor_data['name']} {doctor_data['surname']}"
+        self.statusBar().showMessage(f"Xoş gəlmisiniz, {doctor_name}")
     
-    def on_patient_selected(self, patient_data):
-        """Pasiyent seçiləndə"""
+    def start_new_prescription(self):
+        """Yeni resept yazma prosesini başlatma"""
+        # Barmaq izi oxuma dialoqu
+        fingerprint_dialog = FingerprintScanDialog(self.db_manager)
+        fingerprint_dialog.fingerprint_scanned.connect(self.on_patient_identified)
+        fingerprint_dialog.exec_()
+    
+    def on_patient_identified(self, patient_data):
+        """Pasiyent identifikasiya edildikdə"""
         self.current_patient = patient_data
         
-        # Resept yazma tabını aktivləşdir
-        self.tab_widget.setTabEnabled(1, True)
+        # Pasiyent tarixçəsini al
+        prescriptions = self.db_manager.get_patient_prescriptions(patient_data['id'])
         
-        # Resept editoruna pasiyent məlumatlarını ötür
-        self.prescription_editor.set_patient(patient_data)
-        self.prescription_editor.set_doctor(self.current_doctor)
+        # AI-ya kontekst ver
+        if self.dashboard and hasattr(self.dashboard, 'set_ai_patient_context'):
+            self.dashboard.set_ai_patient_context(patient_data, prescriptions)
         
-        # Resept yazma tabına keç
-        self.tab_widget.setCurrentIndex(1)
+        # Resept workflow pəncərəsini yarat
+        self.create_prescription_workflow(patient_data, prescriptions)
+    
+    def create_prescription_workflow(self, patient_data, prescriptions):
+        """Resept workflow yaratma"""
+        # Workflow widget-i yarat
+        workflow_widget = QWidget()
+        workflow_layout = QHBoxLayout(workflow_widget)
+        workflow_layout.setContentsMargins(0, 0, 0, 0)
+        workflow_layout.setSpacing(0)
         
-        # Status
-        patient_name = f"{patient_data['name']} {patient_data['surname']}"
-        self.statusBar().showMessage(f"Pasiyent seçildi: {patient_name}")
+        # Sol tərəf - Pasiyent tarixçəsi
+        patient_history = PatientHistoryWidget(self.db_manager)
+        patient_history.set_patient(patient_data)
+        
+        # Sağ tərəf - Yeni resept
+        ai_assistant = self.dashboard.ai_assistant if self.dashboard else None
+        new_prescription = NewPrescriptionWidget(self.db_manager, ai_assistant)
+        new_prescription.set_patient_and_doctor(patient_data, self.current_doctor)
+        new_prescription.prescription_saved.connect(self.on_prescription_saved)
+        
+        # Splitter
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.addWidget(patient_history)
+        splitter.addWidget(new_prescription)
+        splitter.setSizes([400, 600])
+        
+        workflow_layout.addWidget(splitter)
+        
+        # Navigation
+        nav_layout = QVBoxLayout()
+        
+        back_btn = QPushButton("← Dashboard-a Qayıt")
+        back_btn.clicked.connect(self.return_to_dashboard)
+        back_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #757575;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-weight: bold;
+                margin: 10px;
+            }
+            QPushButton:hover {
+                background-color: #616161;
+            }
+        """)
+        
+        nav_layout.addWidget(back_btn)
+        nav_layout.addStretch()
+        
+        main_workflow_layout = QHBoxLayout()
+        main_workflow_layout.addLayout(nav_layout)
+        main_workflow_layout.addWidget(splitter)
+        
+        workflow_container = QWidget()
+        workflow_container.setLayout(main_workflow_layout)
+        
+        # Stack-ə əlavə et
+        self.central_stack.addWidget(workflow_container)
+        self.central_stack.setCurrentWidget(workflow_container)
+        
+        # Status yenilə
+        patient_name = patient_data.get('name', 'N/A')
+        self.statusBar().showMessage(f"Yeni resept yazılır - Pasiyent: {patient_name}")
+        
+    def on_prescription_saved(self, prescription_data):
+        """Resept saxlanıldıqda"""
+        QMessageBox.information(self, "Uğur", 
+                              "Resept uğurla qeyd edildi!\n"
+                              "Dashboard-a qayıdılır.")
+        self.return_to_dashboard()
+        
+    def return_to_dashboard(self):
+        """Dashboard-a qayıtma"""
+        if self.dashboard:
+            self.central_stack.setCurrentWidget(self.dashboard)
+            
+            # Analytics-i yenilə
+            if hasattr(self.dashboard, 'analytics_widget'):
+                self.dashboard.analytics_widget.load_analytics()
+                
+        doctor_name = f"Dr. {self.current_doctor['name']} {self.current_doctor['surname']}"
+        self.statusBar().showMessage(f"Dashboard - {doctor_name}")
+    
+    def view_prescriptions(self):
+        """Resept tarixçəsini göstərmə"""
+        # Sadəlik üçün hal-hazırda mesaj göstərəcək
+        # Gələcəkdə ayrı bir pəncərə ola bilər
+        QMessageBox.information(self, "Məlumat", 
+                              "Resept tarixçəsi funksiyası tezliklə əlavə ediləcək.")
     
     def logout(self):
         """Çıxış"""
@@ -326,10 +337,13 @@ class BioScriptMainWindow(QMainWindow):
             self.current_doctor = None
             self.current_patient = None
             
-            # Tabları deaktiv et
-            self.tab_widget.setTabEnabled(1, False)
-            self.tab_widget.setTabEnabled(2, False)
-            self.tab_widget.setCurrentIndex(0)
+            # Stack-i təmizlə
+            while self.central_stack.count() > 0:
+                widget = self.central_stack.widget(0)
+                self.central_stack.removeWidget(widget)
+                widget.deleteLater()
+            
+            self.dashboard = None
             
             # Giriş pəncərəsini yenidən göstər
             self.show_login()
@@ -347,6 +361,8 @@ class BioScriptMainWindow(QMainWindow):
             event.accept()
         else:
             event.ignore()
+    
+
 
 def main():
     """Əsas funksiya"""
